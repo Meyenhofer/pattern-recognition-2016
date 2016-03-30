@@ -1,6 +1,8 @@
 # file input output utilities
 
 import os
+import csv
+import random
 import numpy as np
 from configparser import ConfigParser as ConfigParser
 
@@ -17,6 +19,36 @@ def parse_mnist(filepath, numlines=np.Inf):
             break
 
     return np.array(lbl), np.array(dat)
+
+
+def import_csv_data(filepath):
+    labels = []
+    data = []
+    with open(filepath, 'r') as csv_file:
+        rows = csv.reader(csv_file)
+        for row in rows:
+            rowArray = np.asarray(row, dtype=np.int16)
+            labels.append(rowArray[0])
+            data.append(np.delete(rowArray, 0))
+    return np.array(labels), np.array(data)
+
+
+def export_csv_data(filepath, data):
+    with open(filepath, "w", newline="") as file_out:
+        writer = csv.writer(file_out, delimiter=',')
+        if type(data) == np.ndarray:
+            writer.writerows(data.tolist())
+        else:
+            writer.writerows(data)
+    return
+
+
+def get_random_data_sample(data, sample_size):
+    if type(data) == np.ndarray:
+        sample_data = random.sample(data.tolist(), sample_size)
+    else:
+        sample_data = random.sample(data, sample_size)
+    return np.array(sample_data)
 
 
 def plot_file(prefix, type='pdf'):
