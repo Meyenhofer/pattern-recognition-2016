@@ -2,7 +2,7 @@
 
 import os
 import numpy as np
-from ConfigParser import ConfigParser
+from configparser import ConfigParser as ConfigParser
 
 
 def parse_mnist(filepath, numlines=np.Inf):
