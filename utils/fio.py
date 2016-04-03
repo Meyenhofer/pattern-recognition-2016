@@ -27,9 +27,9 @@ def import_csv_data(filepath):
     with open(filepath, 'r') as csv_file:
         rows = csv.reader(csv_file)
         for row in rows:
-            rowArray = np.asarray(row, dtype=np.int16)
-            labels.append(rowArray[0])
-            data.append(np.delete(rowArray, 0))
+            rowarray = np.asarray(row, dtype=np.int16)
+            labels.append(rowarray[0])
+            data.append(np.delete(rowarray, 0))
     return np.array(labels), np.array(data)
 
 
@@ -51,7 +51,7 @@ def get_random_data_sample(data, sample_size):
     return np.array(sample_data)
 
 
-def plot_file(prefix, type='pdf'):
+def plot_file(prefix, filetype='pdf'):
     config = ConfigParser()
     config.read('config.ini')
 
@@ -60,9 +60,9 @@ def plot_file(prefix, type='pdf'):
         os.mkdir(plotdir)
 
     parts = prefix.split('.')
-    type.replace('.', '')
+    filetype.replace('.', '')
     if len(parts) == 1:
-        filename = prefix + '.' + type
+        filename = prefix + '.' + filetype
     elif len(parts) == 2:
         filename = prefix
     else:
