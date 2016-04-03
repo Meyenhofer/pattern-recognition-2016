@@ -93,3 +93,10 @@ ENV/
 
 # Spyder project settings
 .spyderproject
+
+
+
+### MS Visual Studio ###
+*.sln
+*.suo
+*.pyproj
