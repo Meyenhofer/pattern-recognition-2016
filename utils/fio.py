@@ -10,12 +10,13 @@ from configparser import ConfigParser as ConfigParser
 def parse_mnist(filepath, numlines=np.Inf):
     lbl = []
     dat = []
+    numlines -= 1
     for num, line in enumerate(open(filepath)):
         parts = line.strip().split(',')
         parts = [int(x) for x in parts]
         lbl.append(parts[0])
         dat.append(parts[1:])
-        if num > numlines:
+        if num >= numlines:
             break
 
     return np.array(lbl), np.array(dat)
@@ -51,21 +52,43 @@ def get_random_data_sample(data, sample_size):
     return np.array(sample_data)
 
 
-def plot_file(prefix, filetype='pdf'):
-    config = ConfigParser()
-    config.read('config.ini')
+def get_plot_file(prefix, filetype='pdf'):
+    config = get_config()
+    moduledir = os.path.dirname(__file__)
+    plotdir = os.path.join(os.path.dirname(moduledir), config.get('Plots', 'directory'))
 
-    plotdir = config.get('Plots', 'directory')
-    if not os.path.exists(plotdir):
-        os.mkdir(plotdir)
+    return get_data_location(plotdir, prefix, filetype)
 
-    parts = prefix.split('.')
-    filetype.replace('.', '')
+
+def get_classifier_file(name):
+    moduledir = os.path.dirname(__file__)
+    config = get_config()
+    parent = os.path.join(os.path.dirname(moduledir), config.get('Classifiers', 'directory'))
+
+    return get_data_location(parent, name, 'plk')
+
+
+def get_data_location(directory, filename, extension):
+    if not os.path.exists(directory):
+        os.mkdir(directory)
+
+    parts = filename.split('.')
+    extension.replace('.', '')
     if len(parts) == 1:
-        filename = prefix + '.' + filetype
+        filename = filename + '.' + extension
     elif len(parts) == 2:
-        filename = prefix
+        filename = filename
     else:
-        raise RuntimeError("found multiple extensions in " + prefix)
+        raise RuntimeError("found multiple extensions in " + filename)
 
-    return os.path.join(plotdir, filename)
+    return os.path.join(directory, filename)
+
+
+def get_config():
+    config = ConfigParser()
+    path = 'config.ini'
+    while len(config.sections()) == 0:
+        config.read(path)
+        path = "../" + path
+
+    return config
