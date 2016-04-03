@@ -22,14 +22,21 @@ def parse_mnist(filepath, numlines=np.Inf):
 
 
 def import_csv_data(filepath):
-    labels = []
-    data = []
+    csv_data = []
     with open(filepath, 'r') as csv_file:
         rows = csv.reader(csv_file)
         for row in rows:
-            rowarray = np.asarray(row, dtype=np.int16)
-            labels.append(rowarray[0])
-            data.append(np.delete(rowarray, 0))
+            rowArray = np.asarray(row, dtype=np.int16)
+            csv_data.append(rowArray)
+    return np.array(csv_data)
+
+
+def split_labels_data(np_data, label_index):
+    labels = []
+    data = []
+    for observation in np_data:
+        labels.append(observation[label_index])
+        data.append(np.delete(observation, label_index))
     return np.array(labels), np.array(data)
 
 
