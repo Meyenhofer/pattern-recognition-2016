@@ -12,7 +12,7 @@ however.
 
 print(__doc__)
 import matplotlib.pyplot as plt
-from sklearn.neural_network import MLPClassifier
+from neural_network import MLPClassifier
 from sklearn.preprocessing import MinMaxScaler
 from sklearn import datasets
 

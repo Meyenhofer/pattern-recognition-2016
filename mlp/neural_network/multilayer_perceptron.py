@@ -16,7 +16,7 @@ from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin
 from ._base import logistic, softmax
 from ._base import ACTIVATIONS, DERIVATIVES, LOSS_FUNCTIONS
 from ._stochastic_optimizers import SGDOptimizer, AdamOptimizer
-from model_selection import train_test_split
+from ..model_selection import train_test_split
 from sklearn.externals import six
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.utils import gen_batches, check_random_state

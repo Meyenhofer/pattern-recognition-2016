@@ -20,7 +20,8 @@ def main():
     test_svm.run()
 
 
-    lables, data = fio.import_csv_data(config.get('MNIST', 'testset'))
+    csv_data = fio.import_csv_data(config.get('MNIST', 'testset'))
+    lables, data = fio.split_labels_data(csv_data, 0)
     print("Lables length: %i" % len(lables))
     print("Data length: %i" % len(data))
     sample_data = fio.get_random_data_sample(data, 100)
