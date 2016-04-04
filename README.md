@@ -17,13 +17,12 @@
 ### MLP
 ![MLP Training][fig1]
 ###SVN
+Scores for different kernels and confusion matrivces
 ![SVN Scores][fig2]
 ![linear kernel confusion matrix][fig3]
 ![ploy 3 kernel confusion matrix][fig4]
 ![poly 4 kernel confusion matrix][fig5]
 
-
-## titlle
 
 [ConfigParser]: https://docs.python.org/3/library/configparser.html
 [Google Python Style Guide]: https://google.github.io/styleguide/pyguide.html
@@ -33,6 +32,7 @@
 [sklearn.svm]: http://scikit-learn.org/stable/modules/svm.html
 [sklearn.neural_network.multilayer_perceptron]: https://github.com/scikit-learn/scikit-learn/pull/3204
 [bob.learn.mlp]: https://pypi.python.org/pypi/bob.learn.mlp
+
 
 [fig1]: https://raw.githubusercontent.com/dwettstein/pattern-recognition-2016/master/figs/mlp_main.png
 [fig2]: https://raw.githubusercontent.com/dwettstein/pattern-recognition-2016/master/figs/SVM-score.png
