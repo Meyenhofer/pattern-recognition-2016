@@ -1,4 +1,3 @@
-from configparser import ConfigParser as ConfigParser
 from utils import fio
 import matplotlib.pyplot as plt
 from mlp.neural_network import MLPClassifier
@@ -54,8 +53,7 @@ def plot_on_dataset(X, y, ax, name, max_iter=15):
 
 
 def main():
-    config = ConfigParser()
-    config.read('config.ini')
+    config = fio.get_config()
     print("Config sections: %s" % config.sections())
 
     # Load train set.

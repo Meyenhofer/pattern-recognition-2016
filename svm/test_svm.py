@@ -1,5 +1,4 @@
 import os
-
 from utils import fio
 from sklearn import svm, cross_validation
 from sklearn.metrics import confusion_matrix
@@ -7,7 +6,7 @@ from sklearn.externals import joblib
 from pandas import DataFrame
 import numpy as np
 import matplotlib
-matplotlib.use('Agg')
+matplotlib.use('Agg')   # Avoid gui.
 import matplotlib.pyplot as plt
 
 
@@ -106,11 +105,6 @@ def run():
     fig = ax.get_figure()
     path = fio.get_plot_file('SVM-scores')
     fig.savefig(path)
-
-
-def accuracy(ref, mea):
-    v = ref == mea
-    return float(v.sum()) / float(v.shape[0])
 
 
 if __name__ == '__main__':

@@ -1,4 +1,6 @@
 from utils import fio
+from svm import test_svm
+from mlp import mlp_main
 
 
 def main():
@@ -28,6 +30,12 @@ def main():
     print('Get a plot path')
     pp = fio.get_plot_file('test')
     print('   ' + pp)
+
+    # SVM test
+    test_svm.run()
+
+    # MLP test
+    mlp_main.main()
 
 
 # Program entry point. Don't execute if imported.
