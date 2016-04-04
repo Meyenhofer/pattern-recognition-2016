@@ -98,7 +98,7 @@ def run():
     df = DataFrame(np.array(scores).transpose(), columns=kernels)
     ax = df.plot.bar()
     ax.set_xticklabels(['train score', 'train: cross-val.', 'test: score', 'test: cross-val.'], rotation=0)
-    ax.set_title('SVM classification (N-training = %s, N-test = %s' % (train_n, test_n))
+    ax.set_title('SVM classification (N-training = %s, N-test = %s)' % (train_n, test_n))
     ax.grid()
     ax.grid(which='minor')
     # ax.legend(loc=1)
