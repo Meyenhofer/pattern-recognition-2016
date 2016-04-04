@@ -21,7 +21,7 @@ See [here](http://www.lfd.uci.edu/~gohlke/pythonlibs/) for Windows binaries.
 ### MLP
 ![MLP Training Neurons][fig1]
 ![MLP Training Algorithms][fig1.1]
-###SVN
+###SVM
 Scores for different kernels and confusion matrices
 
 
