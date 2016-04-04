@@ -17,7 +17,7 @@
 ### MLP
 ![MLP Training][fig1]
 ###SVN
-Scores for different kernels and confusion matrivces
+Scores for different kernels and confusion matrices
 ![SVN Scores][fig2]
 ![linear kernel confusion matrix][fig3]
 ![ploy 3 kernel confusion matrix][fig4]
