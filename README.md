@@ -11,11 +11,16 @@
 - [sklearn]: Machine Learning in Python
 - [sklearn.svm]: Support vector machines (SVMs)
 - [sklearn.neural_network.multilayer_perceptron]: Generic multi layer perceptron (Github pull request recently merged), see also [here](https://github.com/scikit-learn/scikit-learn/tree/master/sklearn/neural_network)
-- [bob.learn.mlp]: Bob's Multi-layer Perceptron (MLP). See [here](http://www.lfd.uci.edu/~gohlke/pythonlibs/) for Windows binaries.
+- [bob.learn.mlp]: Bob's Multi-layer Perceptron (MLP). 
+
+See [here](http://www.lfd.uci.edu/~gohlke/pythonlibs/) for Windows binaries.
+
+*Info: Since the multilayer_perceptron classes from scikit-learn are not yet included in the latest release (0.17.1), I have copied them. As soon as they are released, we can delete the code in folder mlp.*
 
 ## Results
 ### MLP
-![MLP Training][fig1]
+![MLP Training Neurons][fig1]
+![MLP Training Algorithms][fig1.1]
 ###SVN
 Scores for different kernels and confusion matrices
 
@@ -36,7 +41,8 @@ Scores for different kernels and confusion matrices
 [bob.learn.mlp]: https://pypi.python.org/pypi/bob.learn.mlp
 
 
-[fig1]: https://raw.githubusercontent.com/dwettstein/pattern-recognition-2016/master/figs/mlp_main.png
+[fig1]: https://raw.githubusercontent.com/dwettstein/pattern-recognition-2016/master/figs/mlp_main_neurons.png
+[fig1.1]: https://raw.githubusercontent.com/dwettstein/pattern-recognition-2016/master/figs/mlp_main_algorithms.png
 [fig2]: https://raw.githubusercontent.com/dwettstein/pattern-recognition-2016/master/figs/SVM-score.png
 [fig3]: https://raw.githubusercontent.com/dwettstein/pattern-recognition-2016/master/figs/SVM_confusion-matrix_linear.png
 [fig4]: https://raw.githubusercontent.com/dwettstein/pattern-recognition-2016/master/figs/SVM_confusion-matrix_poly_3.png

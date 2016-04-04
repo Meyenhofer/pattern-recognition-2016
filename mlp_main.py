@@ -1,28 +1,41 @@
 from utils import fio
 import matplotlib.pyplot as plt
-from mlp.neural_network import MLPClassifier
+from mlp.neural_network import MLPClassifier # Using copies of dev branch from sklearn, since these classes are not yet released.
 from sklearn.preprocessing import MinMaxScaler
 
 
 # different learning rate schedules and momentum parameters
-params = [{'algorithm': 'sgd', 'learning_rate': 'constant', 'momentum': 0,
-           'learning_rate_init': 0.2},
-          {'algorithm': 'sgd', 'learning_rate': 'constant', 'momentum': .9,
-           'nesterovs_momentum': False, 'learning_rate_init': 0.2},
-          {'algorithm': 'sgd', 'learning_rate': 'constant', 'momentum': .9,
-           'nesterovs_momentum': True, 'learning_rate_init': 0.2},
-          {'algorithm': 'sgd', 'learning_rate': 'invscaling', 'momentum': 0,
-           'learning_rate_init': 0.2},
-          {'algorithm': 'sgd', 'learning_rate': 'invscaling', 'momentum': .9,
-           'nesterovs_momentum': True, 'learning_rate_init': 0.2},
-          {'algorithm': 'sgd', 'learning_rate': 'invscaling', 'momentum': .9,
-           'nesterovs_momentum': False, 'learning_rate_init': 0.2},
-          {'algorithm': 'adam'}]
+#params = [{'algorithm': 'sgd', 'learning_rate': 'constant', 'momentum': 0, 'learning_rate_init': 0.2},
+#          {'algorithm': 'sgd', 'learning_rate': 'constant', 'momentum': .9, 'nesterovs_momentum': False, 'learning_rate_init': 0.2},
+#          {'algorithm': 'sgd', 'learning_rate': 'constant', 'momentum': .9, 'nesterovs_momentum': True, 'learning_rate_init': 0.2},
+#          {'algorithm': 'sgd', 'learning_rate': 'invscaling', 'momentum': 0, 'learning_rate_init': 0.2},
+#          {'algorithm': 'sgd', 'learning_rate': 'invscaling', 'momentum': .9, 'nesterovs_momentum': True, 'learning_rate_init': 0.2},
+#          {'algorithm': 'sgd', 'learning_rate': 'invscaling', 'momentum': .9, 'nesterovs_momentum': False, 'learning_rate_init': 0.2},
+#          {'algorithm': 'adam'}]
+#
+#labels = ["constant learning-rate", 
+#          "constant with momentum",
+#          "constant with Nesterov's momentum",
+#          "inv-scaling learning-rate", 
+#          "inv-scaling with momentum",
+#          "inv-scaling with Nesterov's momentum", 
+#          "adam"]
 
-labels = ["constant learning-rate", "constant with momentum",
-          "constant with Nesterov's momentum",
-          "inv-scaling learning-rate", "inv-scaling with momentum",
-          "inv-scaling with Nesterov's momentum", "adam"]
+params = [{'algorithm': 'sgd', 'learning_rate_init': 0.1, 'hidden_layer_sizes': (30,), 'max_iter': 20, 'tol': -1},
+          {'algorithm': 'sgd', 'learning_rate_init': 0.1, 'hidden_layer_sizes': (60,), 'max_iter': 20},
+          {'algorithm': 'sgd', 'learning_rate_init': 0.1, 'hidden_layer_sizes': (100,), 'max_iter': 20},
+          {'algorithm': 'sgd', 'learning_rate_init': 0.2, 'hidden_layer_sizes': (30,), 'max_iter': 20},
+          {'algorithm': 'sgd', 'learning_rate_init': 0.2, 'hidden_layer_sizes': (60,), 'max_iter': 20},
+          {'algorithm': 'sgd', 'learning_rate_init': 0.2, 'hidden_layer_sizes': (100,), 'max_iter': 20},
+          {'algorithm': 'sgd', 'learning_rate_init': 0.3, 'hidden_layer_sizes': (100,), 'max_iter': 20}]
+
+labels = ["lr:0.1, neurons:30", 
+          "lr:0.1, neurons:60",
+          "lr:0.1, neurons:100",
+          "lr:0.2, neurons:30", 
+          "lr:0.2, neurons:60",
+          "lr:0.2, neurons:100", 
+          "lr:0.3, neurons:100"]
 
 plot_args = [{'c': 'red', 'linestyle': '-'},
              {'c': 'green', 'linestyle': '-'},
@@ -33,7 +46,7 @@ plot_args = [{'c': 'red', 'linestyle': '-'},
              {'c': 'black', 'linestyle': '-'}]
 
 
-def plot_on_dataset(X, y, ax, name, max_iter=15):
+def plot_on_dataset(X, y, ax, name):
     # for each dataset, plot learning for each learning strategy
     print("\nlearning on dataset %s" % name)
     ax.set_title(name)
@@ -42,8 +55,7 @@ def plot_on_dataset(X, y, ax, name, max_iter=15):
 
     for label, param in zip(labels, params):
         print("training: %s" % label)
-        mlp = MLPClassifier(verbose=0, random_state=0,
-                            max_iter=max_iter, **param)
+        mlp = MLPClassifier(verbose=0, random_state=0, **param)
         mlp.fit(X, y)
         mlps.append(mlp)
         print("Training set score: %f" % mlp.score(X, y))
@@ -101,7 +113,7 @@ def main():
 
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
-    plot_on_dataset(train_set_data, train_set_lables, ax=ax, name="mnist", max_iter=15)
+    plot_on_dataset(train_set_data, train_set_lables, ax=ax, name="mnist")
     fig.legend(ax.get_lines(), labels=labels, ncol=3, loc="upper center")
     plt.show()
 
