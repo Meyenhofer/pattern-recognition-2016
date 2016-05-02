@@ -8,6 +8,7 @@ from configparser import ConfigParser as ConfigParser
 from svg.path import parse_path
 from xml.dom import minidom
 
+
 def parse_svg(filepath):
     doc = minidom.parse(filepath)
     paths = []
@@ -17,6 +18,7 @@ def parse_svg(filepath):
 
     return np.array(paths)
 
+
 def path2polygon(path):
     start = path[0].start
     polygon = [(start.imag, start.real)]
@@ -24,6 +26,7 @@ def path2polygon(path):
         polygon.append((line.end.imag, line.end.real))
 
     return polygon
+
 
 def parse_mnist(filepath, numlines=np.Inf):
     lbl = []

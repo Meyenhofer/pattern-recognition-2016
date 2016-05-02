@@ -1,6 +1,7 @@
 from utils import fio
 from svm import test_svm
 from mlp import mlp_main
+from utils.transcription import get_transcription
 
 
 def main():
@@ -11,6 +12,13 @@ def main():
     # Get the configurations
     config = fio.get_config()
     print('Config sections: %s' % config.sections())
+
+    # Read KWS transcription
+    trans = get_transcription()
+    c = trans[0][0]
+    s = trans[0][1]
+    print('Transcription code:\n\tid: %s\tdoc-id: %s\tline-id: %s\tword-id:%s\n\tcode: %s\tstring: %s\n' %
+          (c, c.get_doc(), c.get_line(), c.get_word(), s.get_word_code(), s))
 
     # Read text data
     print('Reading MNIST data')
