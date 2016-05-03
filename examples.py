@@ -11,7 +11,7 @@ def main():
 
     # Get the configurations
     config = fio.get_config()
-    print('Config sections: %s' % config.sections())
+    print('Config sections: %s\n' % config.sections())
 
     # Read KWS transcription
     trans = get_transcription()
@@ -23,7 +23,7 @@ def main():
     # Read text data
     print('Reading MNIST data')
     x, y = fio.parse_mnist(config.get('MNIST', 'testset'), 100)
-    print('   parsed %s lines' % x.shape[0])
+    print('   parsed %s lines\n' % x.shape[0])
 
     print('Read csv data')
     csv_data = fio.import_csv_data(config.get('MNIST', 'testset'))
@@ -32,12 +32,11 @@ def main():
     print('   Data length: %i' % len(data))
     sample_data = fio.get_random_data_sample(data, 100)
     print('   Sample data length: %i' % len(sample_data))
-    print('   Sample data type: %s' % type(sample_data))
+    print('   Sample data type: %s\n' % type(sample_data))
 
     # Get a path for a (internal) plot file
-    print('Get a plot path')
     pp = fio.get_plot_file('test')
-    print('   ' + pp)
+    print('Get a plot path:\n\t%s\n' % pp)
 
     # SVM test
     test_svm.run()

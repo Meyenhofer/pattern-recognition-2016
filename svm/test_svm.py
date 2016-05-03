@@ -6,6 +6,9 @@ from sklearn.externals import joblib
 from pandas import DataFrame
 import numpy as np
 import matplotlib
+
+from utils.fio import get_project_root_directory, get_absolute_path
+
 matplotlib.use('Agg')   # Avoid gui.
 import matplotlib.pyplot as plt
 
@@ -70,9 +73,9 @@ def run():
     test_n = int(config.get('MNIST.sample.size', 'testing'))
 
     # Read the data
-    y_train, x_train = fio.parse_mnist('../' + config.get('MNIST', 'trainingset'), numlines=train_n)
+    y_train, x_train = fio.parse_mnist(get_absolute_path(config.get('MNIST', 'trainingset')), numlines=train_n)
     train_n = y_train.shape[0]
-    y_test, x_test = fio.parse_mnist('../' + config.get('MNIST', 'testset'), numlines=test_n)
+    y_test, x_test = fio.parse_mnist(get_absolute_path(config.get('MNIST', 'testset')), numlines=test_n)
     test_n = y_test.shape[0]
 
     print('SVN on MNIST dataset')

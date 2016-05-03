@@ -66,7 +66,7 @@ def plot_on_dataset(X, y, ax, name):
 
 def main():
     config = fio.get_config()
-    print("Config sections: %s" % config.sections())
+    # print("Config sections: %s" % config.sections())
 
     # Load train set.
     csv_train_set_data = fio.import_csv_data(config.get('MNIST', 'trainingset'))

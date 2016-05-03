@@ -82,16 +82,14 @@ def get_random_data_sample(data, sample_size):
 
 def get_plot_file(prefix, filetype='pdf'):
     config = get_config()
-    moduledir = os.path.dirname(__file__)
-    plotdir = os.path.join(os.path.dirname(moduledir), config.get('Plots', 'directory'))
+    plotdir = os.path.join(get_project_root_directory(), config.get('Plots', 'directory'))
 
     return get_data_location(plotdir, prefix, filetype)
 
 
 def get_classifier_file(name):
-    moduledir = os.path.dirname(__file__)
     config = get_config()
-    parent = os.path.join(os.path.dirname(moduledir), config.get('Classifiers', 'directory'))
+    parent = os.path.join(get_project_root_directory(), config.get('Classifiers', 'directory'))
 
     return get_data_location(parent, name, 'plk')
 
@@ -120,3 +118,25 @@ def get_config():
         path = "../" + path
 
     return config
+
+
+def get_project_root_directory():
+    config = get_config()
+    pdn = config.get('PROJECT', 'directory')
+    cwd = os.path.dirname(__file__)
+    while os.path.basename(cwd) != pdn:
+        cwd = os.path.dirname(cwd)
+
+    return cwd
+
+
+def get_absolute_path(rel_path):
+    """
+    Get the absolute path in the current file system from a relative path as
+    they are defined in the config file
+    """
+    ap = get_project_root_directory()
+    for i in range(rel_path.count('../')):
+        ap = os.path.dirname(ap)
+
+    return os.path.join(ap, rel_path.replace('../', ''))
