@@ -3,6 +3,7 @@ from skimage.filters import threshold_otsu
 from skimage.measure import grid_points_in_poly
 from skimage.transform import AffineTransform, warp
 
+
 def crop(image, polygon):
     new_image = np.copy(image)
     xmin, xmax, ymin, ymax = polygon_border(polygon)
@@ -12,6 +13,7 @@ def crop(image, polygon):
     cropped_image = new_image[xmin:xmax, ymin:ymax]
 
     return cropped_image
+
 
 def polygon_border(polygon):
     xmin = polygon[0][0]
@@ -30,10 +32,12 @@ def polygon_border(polygon):
 
     return [round(v) for v in [xmin, xmax, ymin, ymax]]
 
+
 def binarize(image):
     threshold = threshold_otsu(image)
 
     return image > threshold
+
 
 def skew_correction(image, shear=0.2):
     transform = AffineTransform(shear=shear)
