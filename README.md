@@ -26,8 +26,12 @@ See [here](http://www.lfd.uci.edu/~gohlke/pythonlibs/) for Windows binaries.
 ###SVM
 Scores for different kernels and confusion matrices
 
+kernel | training score | training cross validation | test score |test cross validation
+:----: | :------------: | :-----------------------: | :--------: |:-------------------:
+linear | 1              | 0.910                     | 0.908      |0.913                
+poly1  | 1              | 0.910                     | 0.908      |0.958                
+poly4  | 1              | 0.955                     | 0.966      |0.946                
 
-![SVN Scores][fig2]
 ![linear kernel confusion matrix][fig3]
 ![ploy 3 kernel confusion matrix][fig4]
 ![poly 4 kernel confusion matrix][fig5]
