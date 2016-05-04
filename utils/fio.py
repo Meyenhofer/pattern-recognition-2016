@@ -4,9 +4,40 @@ import os
 import csv
 import random
 import numpy as np
+from glob import glob
 from configparser import ConfigParser as ConfigParser
+from skimage.io import imread
 from svg.path import parse_path
 from xml.dom import minidom
+from utils.image import crop
+
+
+def get_image_roi(wc):
+    config = get_config()
+    imgd = get_absolute_path(config.get('KWS', 'images'))
+    imgs = glob(os.path.join(imgd, '*.jpg'))
+    dids = [os.path.basename(x).replace('.jpg', '') for x in imgs]
+    imgp = imgs[dids.index(wc.doc_id)]
+    img = imread(imgp)
+    path = get_svg_path(wc)
+    poly = path2polygon(path)
+    return crop(img, poly)
+
+
+def get_svg_path(wc):
+    config = get_config()
+    svgd = get_absolute_path(config.get('KWS', 'locations'))
+    svgs = glob(os.path.join(svgd, '*.svg'))
+    dids = [os.path.basename(x).replace('.svg', '') for x in svgs]
+    svgp = svgs[dids.index(wc.doc_id)]
+
+    dom = minidom.parse(svgp)
+    path = None
+    for element in dom.getElementsByTagName('path'):
+        if element.getAttribute('id') == wc.id:
+            path = parse_path(element.getAttribute('d'))
+
+    return path
 
 
 def parse_svg(filepath):
