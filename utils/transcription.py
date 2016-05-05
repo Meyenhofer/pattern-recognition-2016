@@ -1,4 +1,4 @@
-from utils.fio import get_config
+from utils.fio import get_config, get_absolute_path
 
 
 class WordCoord:
@@ -52,7 +52,8 @@ class Word:
 def get_transcription(did=None):
     config = get_config()
     trans = []
-    for line in open(config.get('KWS', 'transcription')):
+    path = get_absolute_path(config.get('KWS', 'transcription'))
+    for line in open(path):
         parts = line.strip().split(' ')
         coord = WordCoord(parts[0])
 
