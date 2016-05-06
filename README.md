@@ -48,8 +48,10 @@ Before extracting features, each word is pre-processed:
 - find a word mask
 - normalize the pixel intensities
 - position all the words in a frame with uniform height (centering and scaling)
+
 During this procedure the main assumption is that that the central part of the handwriting (i.e. small letters like a, e, 
 i, ...) will be the predominant peak on the vertical projection of the pixels.
+
 ### Feature computation
 Sliding window approach. Local descriptor includes:
 - contour positions
