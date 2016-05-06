@@ -35,6 +35,11 @@ linear | 1              | 0.910                     | 0.908      |0.913
 poly1  | 1              | 0.910                     | 0.908      |0.958                
 poly4  | 1              | 0.955                     | 0.966      |0.946                
 
+![linear kernel confusion matrix][fig3]
+![ploy 3 kernel confusion matrix][fig4]
+![poly 4 kernel confusion matrix][fig5]
+
+
 ## Key Word Search
 The main project of the course is about implementing a solution for key word search in historical documents. 
 ### Pre-processing
@@ -43,8 +48,10 @@ Before extracting features, each word is pre-processed:
 - find a word mask
 - normalize the pixel intensities
 - position all the words in a frame with uniform height (centering and scaling)
+
 During this procedure the main assumption is that that the central part of the handwriting (i.e. small letters like a, e, 
 i, ...) will be the predominant peak on the vertical projection of the pixels.
+
 ### Feature computation
 Sliding window approach. Local descriptor includes:
 - contour positions
@@ -53,9 +60,6 @@ Sliding window approach. Local descriptor includes:
 - foreground fractions
 - moments 
 
-![linear kernel confusion matrix][fig3]
-![ploy 3 kernel confusion matrix][fig4]
-![poly 4 kernel confusion matrix][fig5]
 
 [cython]: http://cython.org/
 [ConfigParser]: https://docs.python.org/3/library/configparser.html
