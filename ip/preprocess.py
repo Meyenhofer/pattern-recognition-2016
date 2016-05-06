@@ -1,13 +1,15 @@
 import matplotlib.pyplot as plt
 
+import os
 import numpy as np
+from skimage.io import imsave
 import scipy.ndimage as ndi
 from skimage.filters import threshold_otsu
 from skimage.morphology import reconstruction, diamond
 from skimage.transform import rescale
 
 from ip.register import skew_correction
-from utils.fio import get_image_roi
+from utils.fio import get_image_roi, get_project_root_directory, get_config
 from utils.transcription import get_transcription
 
 
@@ -134,7 +136,7 @@ def standardize_roi_height(roi, standard_height=20, rel_height=0.666):
     return uni
 
 
-def word_preprocessor(roi, threshold=0.2, rel_height=0.666, skew_res=0.33, show=False):
+def word_preprocessor(roi, threshold=0.2, rel_height=0.666, skew_res=0.33, show=False, save=None):
     # scale intensity
     ma = roi.max()
     mi = roi.min()
@@ -160,6 +162,7 @@ def word_preprocessor(roi, threshold=0.2, rel_height=0.666, skew_res=0.33, show=
     # standardize the height
     # TODO this might not work as robustly as it should
     uni = standardize_roi_height(cle, standard_height=20, rel_height=rel_height)
+    uni = uni / uni.max()
 
     # plot
     if show:
@@ -173,5 +176,11 @@ def word_preprocessor(roi, threshold=0.2, rel_height=0.666, skew_res=0.33, show=
         ax = fig.add_subplot(414)
         ax.imshow(uni)
         plt.show()
+
+    if save is not None:
+        config = get_config()
+        plotdir = os.path.join(get_project_root_directory(), config.get('Plots', 'directory'))
+        plotfile = os.path.join(plotdir, save + '_word-prepro.png')
+        imsave(plotfile, uni)
 
     return uni
