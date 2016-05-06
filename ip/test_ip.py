@@ -1,5 +1,6 @@
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
+from ip.features import compute_features
 from ip.preprocess import word_preprocessor
 from utils.fio import get_image_roi, get_config
 from utils.transcription import WordCoord
@@ -29,3 +30,9 @@ if __name__ == '__main__':
                                 float(config.get('KWS.prepro', 'relative_height')),
                                 float(config.get('KWS.prepro', 'angular_resolution')),
                                 show=True)
+
+        f = compute_features(pre,
+                             int(config.get('KWS.features', 'window_width')),
+                             int(config.get('KWS.features', 'step_size')))
+
+        # print(f)
