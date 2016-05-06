@@ -35,6 +35,11 @@ linear | 1              | 0.910                     | 0.908      |0.913
 poly1  | 1              | 0.910                     | 0.908      |0.958                
 poly4  | 1              | 0.955                     | 0.966      |0.946                
 
+![linear kernel confusion matrix][fig3]
+![ploy 3 kernel confusion matrix][fig4]
+![poly 4 kernel confusion matrix][fig5]
+
+
 ## Key Word Search
 The main project of the course is about implementing a solution for key word search in historical documents. 
 ### Pre-processing
@@ -53,9 +58,6 @@ Sliding window approach. Local descriptor includes:
 - foreground fractions
 - moments 
 
-![linear kernel confusion matrix][fig3]
-![ploy 3 kernel confusion matrix][fig4]
-![poly 4 kernel confusion matrix][fig5]
 
 [cython]: http://cython.org/
 [ConfigParser]: https://docs.python.org/3/library/configparser.html
