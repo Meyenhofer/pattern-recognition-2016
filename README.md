@@ -6,7 +6,7 @@
 - For a good Python style guide see [Google Python Style Guide]
 
 ## External libraries
-- [cython] cython
+- [cython]: cython
 - [numpy]: Optimized and powerful N-dimensional array object
 - [scipy]: Fundamental library for scientific computing
 - [scikit-image]: Collection of algorithms for image processing
@@ -22,7 +22,7 @@ See [here](http://www.lfd.uci.edu/~gohlke/pythonlibs/) for Windows binaries.
 
 *Info: Since the multilayer_perceptron classes from scikit-learn are not yet included in the latest release (0.17.1), I have copied them. As soon as they are released, we can delete the code in folder mlp.*
 
-## Results
+## Classifier Results
 ### MLP                                                  
 ![MLP Training Neurons][fig1]
 ![MLP Training Algorithms][fig1.1]
@@ -35,11 +35,29 @@ linear | 1              | 0.910                     | 0.908      |0.913
 poly1  | 1              | 0.910                     | 0.908      |0.958                
 poly4  | 1              | 0.955                     | 0.966      |0.946                
 
+## Key Word Search
+The main project of the course is about implementing a solution for key word search in historical documents. 
+### Pre-processing
+Before extracting features, each word is pre-processed:
+- remove clutter (small objects)
+- find a word mask
+- normalize the pixel intensities
+- position all the words in a frame with uniform height (centering and scaling)
+During this procedure the main assumption is that that the central part of the handwriting (i.e. small letters like a, e, 
+i, ...) will be the predominant peak on the vertical projection of the pixels.
+### Feature computation
+Sliding window approach. Local descriptor includes:
+- contour positions
+- contour deviations
+- black-white transitions
+- foreground fractions
+- moments 
+
 ![linear kernel confusion matrix][fig3]
 ![ploy 3 kernel confusion matrix][fig4]
 ![poly 4 kernel confusion matrix][fig5]
 
-[cython] http://cython.org/
+[cython]: http://cython.org/
 [ConfigParser]: https://docs.python.org/3/library/configparser.html
 [Google Python Style Guide]: https://google.github.io/styleguide/pyguide.html
 [numpy]: http://www.numpy.org/
