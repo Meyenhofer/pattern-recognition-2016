@@ -1,43 +1,31 @@
-import numpy as np
 import matplotlib.pyplot as plt
-from skimage.transform import rotate
 
-from ip.preprocess import clean_crop, create_word_mask
-from ip.register import skew_correction
-from utils.fio import get_image_roi
+from ip.preprocess import word_preprocessor
+from utils.fio import get_image_roi, get_config
 from utils.transcription import WordCoord
 
 
-l = ['273-06-01',
-     '273-06-02',
-     '273-06-03',
-     '273-06-04',
-     '273-06-05',
-     '273-06-06',
-     '273-06-07',
-     '273-06-08',
-     '273-07-01',
-     '273-09-01']
+if __name__ == '__main__':
+    l = ['273-09-02',
+         '273-09-03',
+         '273-09-04',
+         '273-09-05',
+         '273-09-06',
+         '273-09-07',
+         '273-10-01',
+         '273-10-02',
+         '273-11-01',
+         '273-12-01']
 
-for c in l[1:2]:
-    print('processing id=%s:' % c)
-    wordcoord = WordCoord(c)
-    roi = get_image_roi(wordcoord)
-    msk = create_word_mask(roi)
-    img = np.copy(roi)
-    img = img.max() - img
-    img[msk < 1] = 0
-    rot, ang = skew_correction(msk)
-    if ang != 0:
-        img = rotate(img, ang)
+    for c in l[2:]:
+        print('processing id=%s:' % c)
+        th = 0.2
+        wordcoord = WordCoord(c)
+        roi = get_image_roi(wordcoord)
 
-    cle = clean_crop(img)
-
-    fig = plt.figure()
-    ax = fig.add_subplot(311)
-    ax.imshow(roi)
-    ax = fig.add_subplot(312)
-    ax.imshow(rot)
-    ax = fig.add_subplot(313)
-    ax.imshow(cle)
-    plt.show()
+        config = get_config()
+        pre = word_preprocessor(roi,
+                                float(config.get('KWS.prepro', 'segmentation_threshold')),
+                                float(config.get('KWS.prepro', 'relative_height')),
+                                float(config.get('KWS.prepro', 'angular_resolution')),
+                                show=True)
