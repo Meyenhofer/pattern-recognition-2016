@@ -69,7 +69,7 @@ def main():
     # print("Config sections: %s" % config.sections())
 
     # Load train set.
-    csv_train_set_data = fio.import_csv_data(config.get('MNIST', 'trainingset'))
+    csv_train_set_data = fio.import_csv_data(fio.get_absolute_path(config.get('MNIST', 'trainingset')))
     print("CSV train data length: %i" % len(csv_train_set_data))
     #train_set_sample_data = fio.get_random_data_sample(csv_train_set_data, 2699) # Just load 10% random data while developing.
     train_set_lables, train_set_data = fio.split_labels_data(csv_train_set_data, 0)
@@ -80,7 +80,7 @@ def main():
     print("Sample data type: %s" % type(train_set_data))
 
     # Load test set.
-    csv_test_set_data = fio.import_csv_data(config.get('MNIST', 'testset'))
+    csv_test_set_data = fio.import_csv_data(fio.get_absolute_path(config.get('MNIST', 'testset')))
     print("CSV test data length: %i" % len(csv_test_set_data))
     #test_set_sample_data = fio.get_random_data_sample(csv_test_set_data, 1501) # Just load 10% random data while developing.
     test_set_lables, test_set_data = fio.split_labels_data(csv_test_set_data, 0)

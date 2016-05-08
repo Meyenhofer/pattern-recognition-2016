@@ -24,8 +24,8 @@ See [here](http://www.lfd.uci.edu/~gohlke/pythonlibs/) for Windows binaries.
 
 ## Classifier Results
 ### MLP                                                  
-![MLP Training Neurons][fig1]
-![MLP Training Algorithms][fig1.1]
+![MLP Training Neurons][fig1.1]
+![MLP Training Algorithms][fig1.2]
 ###SVM
 Scores for different kernels and confusion matrices
 
@@ -35,9 +35,9 @@ linear | 1              | 0.910                     | 0.908      |0.913
 poly1  | 1              | 0.910                     | 0.908      |0.958                
 poly4  | 1              | 0.955                     | 0.966      |0.946                
 
-![linear kernel confusion matrix][fig3]
-![ploy 3 kernel confusion matrix][fig4]
-![poly 4 kernel confusion matrix][fig5]
+![linear kernel confusion matrix][fig2.1]
+![ploy 3 kernel confusion matrix][fig2.2]
+![poly 4 kernel confusion matrix][fig2.3]
 
 
 ## Key Word Search
@@ -75,9 +75,10 @@ Sliding window approach. Local descriptor includes:
 [editdistance]: https://github.com/aflc/editdistance
 [cdtw]: https://github.com/honeyext/cdtw
 
-[fig1]: https://raw.githubusercontent.com/dwettstein/pattern-recognition-2016/master/figs/mlp_main_neurons.png
-[fig1.1]: https://raw.githubusercontent.com/dwettstein/pattern-recognition-2016/master/figs/mlp_main_algorithms.png
-[fig2]: https://raw.githubusercontent.com/dwettstein/pattern-recognition-2016/master/figs/SVM-score.png
-[fig3]: https://raw.githubusercontent.com/dwettstein/pattern-recognition-2016/master/figs/SVM_confusion-matrix_linear.png
-[fig4]: https://raw.githubusercontent.com/dwettstein/pattern-recognition-2016/master/figs/SVM_confusion-matrix_poly_3.png
-[fig5]: https://raw.githubusercontent.com/dwettstein/pattern-recognition-2016/master/figs/SVM_confusion-matrix_poly_4.png
+
+[fig1.1]: https://raw.githubusercontent.com/dwettstein/pattern-recognition-2016/master/figs/mlp_neurons_630.png
+[fig1.2]: https://raw.githubusercontent.com/dwettstein/pattern-recognition-2016/master/figs/mlp_main_algorithms.png
+
+[fig2.1]: https://raw.githubusercontent.com/dwettstein/pattern-recognition-2016/master/figs/SVM_confusion-matrix_linear.png
+[fig2.2]: https://raw.githubusercontent.com/dwettstein/pattern-recognition-2016/master/figs/SVM_confusion-matrix_poly_3.png
+[fig2.3]: https://raw.githubusercontent.com/dwettstein/pattern-recognition-2016/master/figs/SVM_confusion-matrix_poly_4.png
