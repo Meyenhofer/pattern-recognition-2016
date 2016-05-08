@@ -16,7 +16,7 @@ class HTMLVisualization:
         self.html.appendChild(self.head)
         self.html.appendChild(self.body)
         css = self.__document.createElement('style')
-        text = self.__document.createTextNode('div { position: absolute; }')
+        text = self.__document.createTextNode('div { display: table; }')
         css.appendChild(text)
         self.head.appendChild(css)
 
