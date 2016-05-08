@@ -4,7 +4,6 @@ from scipy.stats import moment
 def compute_features(roi, window_width=1, step_size=3):
     w = roi.shape[1]
     msk = roi > 0
-<<<<<<< HEAD
     f = []
 
     x1 = 0
@@ -40,6 +39,7 @@ def compute_features(roi, window_width=1, step_size=3):
             break
 
     return f
+
 
 def transitions(bin_img):
     """
