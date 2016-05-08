@@ -1,6 +1,7 @@
 import os
 from glob import glob
 
+from datetime import datetime
 from skimage.io import imread
 
 from ip.features import compute_features
@@ -9,13 +10,29 @@ from utils.fio import get_config, get_absolute_path, parse_svg, path2polygon
 from utils.image import crop
 
 
+def write_word_features(output_file, word_id, mat):
+    handle = open(output_file, 'a')
+    handle.write(word_id + os.linesep)
+    for row in mat:
+        for cell in row:
+            handle.write('%d\t' % cell)
+
+        handle.write(os.linesep)
+
+    handle.write('###')
+    handle.close()
+
+
 def main():
     print('Word pre-processing')
     config = get_config()
 
     # create an output file
     txtp = get_absolute_path(config.get('KWS.features', 'file'))
-
+    fp = os.path.join(os.path.dirname(txtp),
+                      datetime.now().strftime('%y-%m-%d_%H-%M') + os.path.basename(txtp))
+    handle = open(fp, 'w+')
+    handle.close()
 
     # get the data
     svgd = get_absolute_path(config.get('KWS', 'locations'))
@@ -48,9 +65,11 @@ def main():
                                     save=wid)
 
             fea = compute_features(pre,
-                                 int(config.get('KWS.features', 'window_width')),
-                                 int(config.get('KWS.features', 'step_size')))
+                                   int(config.get('KWS.features', 'window_width')),
+                                   int(config.get('KWS.features', 'step_size')))
 
+            write_word_features(fp, wid, fea)
+            print('...')
 
 
 if __name__ == '__main__':
