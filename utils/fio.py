@@ -43,11 +43,13 @@ def get_svg_path(wc):
 def parse_svg(filepath):
     doc = minidom.parse(filepath)
     paths = []
+    ids = []
     for path in doc.getElementsByTagName('path'):
+        ids.append(path.getAttribute('id'))
         parsed_path = parse_path(path.getAttribute('d'))
         paths.append(parsed_path)
 
-    return np.array(paths)
+    return np.array(ids), np.array(paths)
 
 
 def path2polygon(path):
