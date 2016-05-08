@@ -21,24 +21,20 @@ class HTMLVisualization:
         self.head.appendChild(css)
 
     # TODO: Refactor!
-    def add_image(self, img_src, svg_src=None, svg_str=None, img_id=None, paths=None, words=None):
+    def add_image(self, img_src, svg_src, img_id=None, paths=None, words=None):
         div = self.__document.createElement('div')
         if img_id:
             div.setAttribute('id', img_id)
         div.setAttribute('style', 'background-image: url("' + img_src + '");')
-        if svg_src:
-            svg_doc = parse(svg_src)
-        elif svg_str:
-            svg_doc = parseString(svg_str)
-        if svg_doc:
-            if words is not None:
-                svg_doc = filter_svg_by_id(svg_doc, words)
-                div.appendChild(svg_doc)
-            elif paths is not None:
-                svg_doc = filter_svg(svg_doc, paths)
-                div.appendChild(svg_doc)
-            else:
-                div.appendChild(svg_doc.documentElement)
+        svg_doc = parse(svg_src)
+        if words is not None:
+            svg_doc = filter_svg_by_id(svg_doc, words)
+            div.appendChild(svg_doc)
+        elif paths is not None:
+            svg_doc = filter_svg(svg_doc, paths)
+            div.appendChild(svg_doc)
+        else:
+            div.appendChild(svg_doc.documentElement)
         self.body.appendChild(div)
 
     def add_image_by_id(self, img_id, word_ids=None):
@@ -47,7 +43,7 @@ class HTMLVisualization:
         img_src = os.path.join(img_dir, img_id + '.jpg')
         svg_dir = get_absolute_path(config.get('KWS', 'locations'))
         svg_src = os.path.join(svg_dir, img_id + '.svg')
-        self.add_image(img_src, svg_src=svg_src, words=word_ids)
+        self.add_image(img_src, svg_src, words=word_ids, img_id=img_id)
 
     def save(self, file_path='output.html'):
         file_handle = open(file_path, 'w')
