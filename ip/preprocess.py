@@ -92,6 +92,9 @@ def create_word_mask(roi, threshold=None, rel_height=0.5):
     nzy = y.nonzero()
     y_lb = nzy[0].min()
     y_ub = nzy[0].max()
+    if y_lb == y_ub:
+        y_lb -= 3
+        y_ub += 3
 
     seed = np.zeros(bwcd.shape, dtype=bool)
     seed[y_lb:y_ub, x_lb:x_ub] = True
@@ -106,27 +109,28 @@ def standardize_roi_height(roi, standard_height=20, rel_height=0.666):
     h = standard_height * 5
 
     y = roi.sum(1)
-    y[y < y.max() * rel_height] = 0
-    nzy = y.nonzero()
-    y_lb = nzy[0].min()
-    y_ub = nzy[0].max()
+    yp = y[y < y.max() * rel_height]
 
-    pw = y_ub - y_lb
+    # nzy = yp.nonzero()
+    # y_lb = nzy[0].min()
+    # y_ub = nzy[0].max()
+
+    pw = yp.shape[0]
     sf = standard_height / pw
 
-    sh = int(np.ceil(float(roi.shape[0]) * pw))
-    if sh <= h:
+    sh = int(np.ceil(float(roi.shape[0]) * sf))
+    if sh <= h:                 # if the scale factor estimation isn't off try to rescale according to the central part
         res = rescale(roi, sf)
     else:
-        if h < roi.shape[0]:
+        if h < roi.shape[0]:    # if the thing is too big, squeez it down
             sf = h / roi.shape[0]
             res = rescale(roi, sf)
-        else:
-            res = roi
+        else:                   # if the scale factor estimation is off,
+            res = roi           # but the image is still smaller than the standard, just center.
 
     w = res.shape[1]
 
-    c = int(h / 2)
+    c = int(h / 2)  # TODO: the centering should depend on the symmetry of the word (4 cases: are, gone, to, for)
     os_p = int(np.floor(res.shape[0] / 2))
     os_m = int(np.ceil(res.shape[0] / 2))
 
@@ -136,7 +140,7 @@ def standardize_roi_height(roi, standard_height=20, rel_height=0.666):
     return uni
 
 
-def word_preprocessor(roi, threshold=0.2, rel_height=0.666, skew_res=0.33, show=False, save=None):
+def word_preprocessor(roi, threshold=0.2, rel_height=0.666, skew_res=0.33, sta_height=20, show=False, save=None):
     # scale intensity
     ma = roi.max()
     mi = roi.min()
@@ -144,6 +148,7 @@ def word_preprocessor(roi, threshold=0.2, rel_height=0.666, skew_res=0.33, show=
 
     # invert
     roi = roi.max() - roi
+    roi.astype('float16')
 
     # create a mask
     msk = create_word_mask(roi, threshold=threshold, rel_height=rel_height)
@@ -158,10 +163,18 @@ def word_preprocessor(roi, threshold=0.2, rel_height=0.666, skew_res=0.33, show=
 
     # crop
     cle = clean_crop(img, threshold=threshold, rel_height=rel_height)
+    if cle.shape[0] < (sta_height * 0.66):
+        if save is not None:
+            cle = cle / cle.max()
+            save_word_image(cle, "failed_" + save)
+        return 'image too small (%s)' % cle.shape[0]
 
     # standardize the height
     # TODO this might not work as robustly as it should
-    uni = standardize_roi_height(cle, standard_height=20, rel_height=rel_height)
+    # uni = standardize_roi_height(cle, standard_height=sta_height, rel_height=rel_height)
+    zer = np.zeros((1, cle.shape[1]))
+    uni = np.append(zer, cle, axis=0)
+    uni = np.append(uni, zer, axis=0)
     uni = uni / uni.max()
 
     # plot
@@ -178,9 +191,13 @@ def word_preprocessor(roi, threshold=0.2, rel_height=0.666, skew_res=0.33, show=
         plt.show()
 
     if save is not None:
-        config = get_config()
-        plotdir = os.path.join(get_project_root_directory(), config.get('Plots', 'directory'))
-        plotfile = os.path.join(plotdir, save + '_word-prepro.png')
-        imsave(plotfile, uni)
+        save_word_image(uni, save)
 
     return uni
+
+
+def save_word_image(img, wid):
+    config = get_config()
+    plotdir = os.path.join(get_project_root_directory(), config.get('Plots', 'directory'))
+    plotfile = os.path.join(plotdir, wid + '_word-prepro.png')
+    imsave(plotfile, img)
