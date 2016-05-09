@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from utils.fio import get_config, get_absolute_path
 
 
@@ -24,14 +26,14 @@ class WordCoord:
 
 class Word:
     def __init__(self, word):
-        self.code = {'-': '',   # replace all the separator dashes
-                     's_pt': '.',
-                     's_cm': ',',
-                     's_sq': ';',
-                     's_qt': '\'',
-                     's_mi': '-',
-                     's_qo': ':',
-                     's_': ''}  # The last one is for number prefixes
+        self.code = OrderedDict([('-', ''),   # replace all the separator dashes
+                                 ('s_pt', '.'),
+                                 ('s_cm', ','),
+                                 ('s_sq', ';'),
+                                 ('s_qt', '\''),
+                                 ('s_mi', '-'),
+                                 ('s_qo', ':'),
+                                 ('s_', '')])  # The last one is for number prefixes
 
         self.word = word
 
@@ -63,3 +65,12 @@ def get_transcription(did=None):
     trans = sorted(trans, key=lambda x: x[0].__str__())
 
     return trans
+
+
+def get_word(coord, data=None):
+    if data is None:
+        data = get_transcription(coord.doc_id)
+
+    for co, wo in data:
+        if co.id == coord:
+            return wo
