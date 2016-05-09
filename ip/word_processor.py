@@ -1,44 +1,73 @@
 import os
 from glob import glob
 
-from datetime import datetime
+import matplotlib.pyplot as plt
 from skimage.io import imread
 
-from ip.features import compute_features
+from ip.features import compute_features, word_symmetry
 from ip.preprocess import word_preprocessor
 from utils.fio import get_config, get_absolute_path, parse_svg, path2polygon
 from utils.image import crop
+from utils.transcription import get_transcription, get_word
 
 
-def write_word_features(output_file, word_id, mat):
+def write_word_features(output_file, word_id, mat, fea):
     handle = open(output_file, 'a')
     handle.write(word_id + os.linesep)
+    [handle.write('%i\t' % x) for x in fea]
+    handle.write(os.linesep)
+
     for row in mat:
         for cell in row:
-            handle.write('%d\t' % cell)
+            handle.write('%f\t' % cell)
 
         handle.write(os.linesep)
 
-    handle.write('###')
+    handle.write('###' + os.linesep)
     handle.close()
 
 
-def main():
+def main(retake=True):
     print('Word pre-processing')
     config = get_config()
 
     # create an output file
     txtp = get_absolute_path(config.get('KWS.features', 'file'))
-    fp = os.path.join(os.path.dirname(txtp),
-                      datetime.now().strftime('%y-%m-%d_%H-%M') + os.path.basename(txtp))
-    handle = open(fp, 'w+')
-    handle.close()
+    # fp = os.path.join(os.path.dirname(txtp),
+    #                   datetime.now().strftime('%y-%m-%d_%H-%M_') + os.path.basename(txtp))
+
+    processed = []
+    if retake and os.path.exists(txtp):
+        takenext = False
+        for line in open(txtp, 'r'):
+            line = line.strip()
+            if takenext and (len(line) >= 9):
+                processed.append(line.strip())
+                takenext = False
+            elif line == "###":
+               takenext = True
+    else:
+        handle = open(txtp, 'w+')
+        for param, value in config.items('KWS.prepro'):
+            handle.write('%s: %s%s' % (param, value, os.linesep))
+        for param, value in config.items('KWS.features'):
+            handle.write('%s: %s%s' % (param, value, os.linesep))
+        handle.write('###' + os.linesep)
+        handle.close()
 
     # get the data
     svgd = get_absolute_path(config.get('KWS', 'locations'))
     svgs = glob(os.path.join(svgd, '*.svg'))
     imgd = get_absolute_path(config.get('KWS', 'images'))
     imgs = glob(os.path.join(imgd, '*.jpg'))
+
+    # parse some parameter
+    threshold = float(config.get('KWS.prepro', 'segmentation_threshold'))
+    relative_height = float(config.get('KWS.prepro', 'relative_height'))
+    skew_resolution = float(config.get('KWS.prepro', 'angular_resolution'))
+    standard_height = float(config.get('KWS.prepro', 'central_height'))
+    window_width = int(config.get('KWS.features', 'window_width'))
+    step_size = int(config.get('KWS.features', 'step_size'))
 
     for svgp, imgp in zip(svgs, imgs):
         svgid = os.path.basename(svgp).replace('.svg', '')
@@ -48,27 +77,43 @@ def main():
         if svgid != imgid:
             raise IOError('the id\'s of the image file (%s) and the svg file (%s) are not the same' % (svgid, imgid))
 
+        trans = get_transcription(svgid)
+
         print('\tdoc id: %s' % svgid)
         wids, paths = parse_svg(svgp)
         img = imread(imgp)
         for wid, path in zip(wids, paths):
             print('\tword id: %s' % wid)
 
+            if retake and (processed.count(wid) == 1):
+                print('\talready processed')
+                continue
+
+            # look up the corresponding word
+            word = get_word(wid, data=trans)
+
             # get the word image
             poly = path2polygon(path)
             roi = crop(img, poly)
 
             pre = word_preprocessor(roi,
-                                    float(config.get('KWS.prepro', 'segmentation_threshold')),
-                                    float(config.get('KWS.prepro', 'relative_height')),
-                                    float(config.get('KWS.prepro', 'angular_resolution')),
-                                    save=wid)
+                                    threshold=threshold,
+                                    rel_height=relative_height,
+                                    skew_res=skew_resolution,
+                                    sta_height=standard_height,
+                                    save=word.code2string() + '_' + wid)
+
+            if type(pre) is str:
+                print('\tpre-processing failed\n\t\t%s' % pre)
+                continue
 
             fea = compute_features(pre,
-                                   int(config.get('KWS.features', 'window_width')),
-                                   int(config.get('KWS.features', 'step_size')))
+                                   window_width=window_width,
+                                   step_size=step_size)
 
-            write_word_features(fp, wid, fea)
+            sym = word_symmetry(pre)
+
+            write_word_features(txtp, wid, fea, [pre.shape[0], pre.shape[1], sym])
             print('...')
 
 

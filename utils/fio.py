@@ -12,6 +12,35 @@ from xml.dom import minidom
 from utils.image import crop
 
 
+def parse_feature_map(filepath):
+    isid = False
+    isimg = False
+    ismat = False
+    ids = []
+    imgs = []
+    mats = []
+    mat = []
+    for line in open(filepath, 'r'):
+        if line.strip() == '###':
+            isid = True
+            if len(mat) > 0:
+                mats.append(np.array(mat))
+                mat = []
+            ismat = False
+        elif isid:
+            ids.append(line.strip())
+            isid = False
+            isimg = True
+        elif isimg:
+            imgs.append([int(x.strip()) for x in line.strip().split('\t')])
+            isimg = False
+            ismat = True
+        elif ismat:
+            mat.append([float(x.strip()) for x in line.strip().split('\t')])
+
+    return ids, imgs, mats
+
+
 def get_image_roi(wc):
     config = get_config()
     imgd = get_absolute_path(config.get('KWS', 'images'))
