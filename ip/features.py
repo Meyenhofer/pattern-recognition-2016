@@ -1,3 +1,4 @@
+import numpy as np
 from scipy.stats import moment
 
 
@@ -9,27 +10,31 @@ def compute_features(roi, window_width=1, step_size=3):
     x1 = 0
     x2 = x1 + window_width
     while True:
+        # get pixel subset
+        bw = msk[:, x1:x2]
+        gs = roi[:, x1:x2]
+        gsm = gs[bw]
+        if len(gsm) == 0:
+            gsm = np.array([0])
 
-        bin = msk[:, x1:x2]
-        scv = roi[:, x1:x2]
         # gradient
-        gra = bin[0:-2] - bin[1:-1]
+        gra = bw[0:-2] - bw[1:-1]
         # number of black-white and white-black transitions
         bwt, wbt = transitions(gra)
         # digits not on the contour
         dk = gra == 0
 
         # foreground fraction
-        fgf = bin.sum() / len(bin)
+        fgf = bw.sum() / len(bw)
 
         fv = [fgf,
               bwt,
               wbt,
               dk.sum(),
-              moment(scv, moment=1)[0],
-              moment(scv, moment=2)[0],
-              moment(scv, moment=3)[0],
-              moment(scv, moment=4)[0]]
+              np.mean(gsm),
+              moment(gsm, moment=2),
+              moment(gsm, moment=3),
+              moment(gsm, moment=4)]
 
         f.append(fv)
 
@@ -60,3 +65,32 @@ def transitions(bin_img):
                     white_black_count += 1
 
     return black_white_count, white_black_count
+
+
+def word_symmetry(img, rel_height=0.66, sta_height=20):
+    """
+    returns [1...4]
+    1: lowercase like a, e, i, o, u
+    2: letters like b, t, h,
+    3: letters like g, p, q
+    4: letters like f
+    """
+    y = img.sum(1)
+    i = y > y.max() * rel_height
+    p = y[i]
+    px = y.argmax()
+
+    u = np.where(~i)
+    up = u < px
+    up = up.shape[0]
+    lo = u > px
+    lo = lo.shape[0]
+
+    if y.shape[0] <= sta_height * 1.5:
+        return 1
+    elif (up > 10) and (lo > 10):
+        return 4
+    elif up > 10:
+        return 2
+    else:
+        return 3
