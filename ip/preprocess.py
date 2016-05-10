@@ -163,7 +163,7 @@ def word_preprocessor(roi, threshold=0.2, rel_height=0.666, skew_res=0.33, sta_h
 
     # crop
     cle = clean_crop(img, threshold=threshold, rel_height=rel_height)
-    if cle.shape[0] < (sta_height * 0.8):
+    if cle.shape[0] < (sta_height * 0.4):
         if save is not None:
             cle = cle / cle.max()
             save_word_image(cle, "failed_" + save)
