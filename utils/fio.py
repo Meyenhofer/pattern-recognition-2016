@@ -12,7 +12,7 @@ from xml.dom import minidom
 from utils.image import crop
 
 
-def parse_feature_map(filepath):
+def parse_feature_map(filepath, items=None, id_filter=None):
     isid = False
     isimg = False
     ismat = False
@@ -26,8 +26,14 @@ def parse_feature_map(filepath):
             if len(mat) > 0:
                 mats.append(np.array(mat))
                 mat = []
+                if (items is not None) and (len(ids) == items):
+                    break
+
             ismat = False
         elif isid:
+            if (id_filter is not None) and (not id_filter.count(line.strip()) > 0):
+                continue
+
             ids.append(line.strip())
             isid = False
             isimg = True
