@@ -38,7 +38,7 @@ def parse_feature_map(filepath):
         elif ismat:
             mat.append([float(x.strip()) for x in line.strip().split('\t')])
 
-    return ids, imgs, mats
+    return np.array(ids), np.array(imgs), np.array(mats)
 
 
 def get_image_roi(wc):

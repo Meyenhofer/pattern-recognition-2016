@@ -68,6 +68,9 @@ def get_transcription(did=None):
 
 
 def get_word(coord, data=None):
+    if type(coord) == WordCoord:
+        coord = coord.id
+
     if data is None:
         data = get_transcription(coord.doc_id)
 
