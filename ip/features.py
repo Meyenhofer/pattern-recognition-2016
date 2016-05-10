@@ -18,7 +18,7 @@ def compute_features(roi, window_width=1, step_size=3):
             gsm = np.array([0])
 
         # gradient
-        gra = bw[0:-2] - bw[1:-1]
+        gra = bw[0:-1] - bw[1:]
         # number of black-white and white-black transitions
         bwt, wbt = transitions(gra)
         # digits not on the contour
