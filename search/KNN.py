@@ -135,6 +135,7 @@ class PairWiseDist:
         c = 0
         for i in range(self._M - 1):
             for j in range(i + 1, self._M):
+                print('%i, %i' % (i, j))
                 rows[c] = i
                 cols[c] = j
                 dist[c], _ = fastdtw(x[i], x[j], dist=euclidean)
@@ -162,14 +163,15 @@ class PairWiseDist:
         """
         a = self._i == i
         b = self._j == i
+        ab = a | b
 
         j = np.zeros((self._i.shape[0], 2), dtype=int)
         j[a, 0] = self._j[a]
         j[b, 1] = self._i[b]
         j = j.max(axis=1)
-        j = j[np.nonzero(j)]
+        j = j[np.where(ab)]
 
-        d = self._d[a | b]
+        d = self._d[ab]
 
         return d, j
 
