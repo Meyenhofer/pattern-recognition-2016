@@ -75,8 +75,11 @@ class KNN:
         correct = 0
         for i in range(self._train.N):
             dis, ind = d.get_dists(i)
-            lbl = self.vote(dis, self._train.Y[ind])
-            correct += lbl == self._train.Y[i]
+            word = self.vote(dis, self._train.words[ind])
+            if word == self._train.words[i]:
+                correct += 1
+            else:
+                print('misclassified "%s" as "%s"' % (self._train.words[i], word))
 
         return correct / self._train.N
 
@@ -88,7 +91,7 @@ class KNN:
 
         # the dictator case
         if self._k == 1:
-            return kn[0]
+            return kn[1]
 
         # count the labels
         votes = [x[1] for x in kn]
@@ -99,7 +102,7 @@ class KNN:
             index = np.argmax(counts)
             return candidates[index]
         else:
-            return t[0][1]  # tie break the tie with the minimum distance
+            return kn[0][1]  # tie break the tie with the minimum distance
 
     def classify(self, mat, img, tol=5):
         # subset index
@@ -114,7 +117,7 @@ class KNN:
         x = np.append(mat, self._train.X[i])
         pd = PairWiseDist(x)
         d, j = pd.get_dists(0)
-        y = self.vote(d, self._train.Y[j])
+        y = self.vote(d, self._train.words[j])
 
         return y
 
@@ -161,13 +164,13 @@ class PairWiseDist:
         b = self._j == i
 
         j = np.zeros((self._i.shape[0], 2), dtype=int)
-        aa = np.where(a)
-        j[aa, 0] = self._j[aa]
-        bb = np.where(b)
-        j[bb, 1] = self._i[bb]
+        j[a, 0] = self._j[a]
+        j[b, 1] = self._i[b]
         j = j.max(axis=1)
+        j = j[np.nonzero(j)]
 
         d = self._d[a | b]
+
         return d, j
 
 
