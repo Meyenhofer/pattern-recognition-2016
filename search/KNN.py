@@ -1,3 +1,6 @@
+import os
+
+from datetime import datetime
 import numpy as np
 import time
 
@@ -11,16 +14,23 @@ from utils.transcription import get_transcription, get_word, WordCoord
 
 class KNN:
     def __init__(self):
-        self._k = 1
+        config = get_config()
+        self._k = int(config.get('KWS.classifier', 'k'))
+        self._tol_v = int(config.get('KWS.classifier', 'tol_ver'))
+        self._tol_h = int(config.get('KWS.classifier', 'tol_hor'))
         self._d = None
-        self._train = None
-        self._valid = None
+        self.train = None
+        self.valid = None
+        self._log = None
 
     def fit(self, dataset):
         if type(dataset) != DataSet:
             raise IOError("The input has to be a KNN.DataSet")
 
-        self._train = dataset
+        self.train = dataset
+
+        if (self.train is None) or self.train.N <= 1:
+            raise IOError("There is no data. Define dataset input or use KNN.parse().")
 
     def parse(self, items=None, id_filter=None):
         print('parse features')
@@ -32,14 +42,14 @@ class KNN:
         trans = get_transcription()
         words = []
         coords = []
-        for id in ids:
-            word = get_word(id, data=trans)
+        for coord in ids:
+            word = get_word(coord, data=trans)
             words.append(str(word))
-            coords.append(WordCoord(id))
+            coords.append(WordCoord(coord))
 
-        self._train = DataSet(ids, imgs, mats, np.array(coords), np.array(words))
+        self.train = DataSet(np.array(words), imgs, mats, np.array(coords))
 
-    def parse_train_and_valid(self):
+    def parse_all(self):
         self.parse()
 
         # get the training subset
@@ -52,36 +62,60 @@ class KNN:
                 dids.append(did)
 
         # create the index for the features
-        index = np.array([dids.count(x.doc_id) == 1 for x in self._train.coords], dtype=bool)
+        index = np.array([dids.count(x.doc_id) == 1 for x in self.train.coords], dtype=bool)
 
         # Put the data in memory
-        self._valid = DataSet(self._train.Y[index],
-                              self._train.imgs[index],
-                              self._train.X[index],
-                              self._train.words[index],
-                              self._train.coords[index])
+        self.valid = DataSet(self.train.Y[index],
+                             self.train.imgs[index],
+                             self.train.X[index],
+                             self.train.coords[index])
         index = ~index  # (tested if the valid doc ids are indeed the complement)
-        self._train = DataSet(self._train.Y[index],
-                              self._train.imgs[index],
-                              self._train.X[index],
-                              self._train.words[index],
-                              self._train.coords[index])
+        self.train = DataSet(self.train.Y[index],
+                             self.train.imgs[index],
+                             self.train.X[index],
+                             self.train.coords[index])
 
     def set_k(self, value):
         self._k = value
 
-    def training_score(self):
-        d = PairWiseDist(self._train.X)
-        correct = 0
-        for i in range(self._train.N):
-            dis, ind = d.get_dists(i)
-            word = self.vote(dis, self._train.words[ind])
-            if word == self._train.words[i]:
-                correct += 1
-            else:
-                print('misclassified "%s" as "%s"' % (self._train.words[i], word))
+    def set_tol(self, hor, ver):
+        self._tol_h = hor
+        self._tol_v = ver
 
-        return correct / self._train.N
+    def training_score(self):
+        self.create_log()
+
+        d = PairWiseDist(self.train.X)
+        correct = 0.0
+        for i in range(self.train.N):
+            dis, ind = d.get_dists(i)
+            lbl = self.train.Y[ind]
+            word, md, cnt = self.vote(dis, lbl)
+            gt = self.train.Y[i]
+            ns = sum(self.train.Y == word)
+
+            if self.clean_word(word) == self.clean_word(gt):
+                correct += 1
+                msg = ''
+            else:
+                msg = 'x   '
+
+            msg += '%s -> %s' % (gt, word)
+            msg += ' ' * (40 - len(msg))
+            msg += '#train-words: %i\t\tmin-dist: %.0f\t\tvotes: %i\tid: %s\n' \
+                   % (ns, md, cnt, self.train.coords[i].id)
+
+            self.log(msg)
+
+        acc = correct / float(self.train.N)
+        msg = '\nAccuracy: %.2f (%i samples)' % (acc, self.train.N)
+        self.log(msg)
+
+        return acc
+
+    @staticmethod
+    def clean_word(s):
+        return s.replace(',', '').replace('.', '').replace(';', '').replace(':','')
 
     def vote(self, dists, lbls):
         t = [(x, y) for x, y in zip(dists, lbls)]
@@ -91,7 +125,7 @@ class KNN:
 
         # the dictator case
         if self._k == 1:
-            return kn[1]
+            return kn[1], kn[0], 0
 
         # count the labels
         votes = [x[1] for x in kn]
@@ -100,26 +134,108 @@ class KNN:
 
         if len(counts) == len(set(counts)):
             index = np.argmax(counts)
-            return candidates[index]
+            return candidates[index], kn[0][0], counts[index]
         else:
-            return kn[0][1]  # tie break the tie with the minimum distance
+            return kn[0][1], kn[0][0], 1    # tie break the tie with the minimum distance
 
-    def classify(self, mat, img, tol=5):
-        # subset index
-        h_min = img[0] - tol
-        h_max = img[0] + tol
-        w_min = img[1] - tol
-        w_max = img[1] + tol
+    def classify(self, mat, coord, img=None):
+        """
+        classify a single sample (mat).
+        mat KxN is a feature matrix from an image. N features computed for K windows.
+        If the tuple img (image height, image width, rank) is defined,
+        the distance computation will be constrained by the image parameter.
+        """
+        t0 = time.time()
 
-        i = ((self._train.h >= h_min) & (h_max <= self._train.h)) & \
-            (self._train.w >= w_min) & (w_max <= self._train.h)
+        if img is None:
+            x = self.train.X
+            y = self.train.Y
+            c = np.array([x.id for x in self.train.coords])
+            nc = self.train.N
+        else:
+            # subset index
+            h_min = img[0] - self._tol_v
+            h_max = img[0] + self._tol_v
+            w_min = img[1] - self._tol_h
+            w_max = img[1] + self._tol_h
 
-        x = np.append(mat, self._train.X[i])
-        pd = PairWiseDist(x)
-        d, j = pd.get_dists(0)
-        y = self.vote(d, self._train.words[j])
+            i = ((self.train.h >= h_min) & (h_max >= self.train.h)) & \
+                (self.train.w >= w_min) & (w_max >= self.train.h)
+            # x = np.append([mat], self.train.X[i])
+            x = self.train.X[i]
+            y = self.train.Y[i]
+            c = np.array([x.id for x in self.train.coords[i]])
+            nc = sum(i)
 
-        return y
+        not_itself = coord != c
+        # print(sum(~not_itself))
+        x = x[not_itself]
+        y = y[not_itself]
+
+        if nc > 0:
+            d = np.zeros((nc,))
+            for i, m in enumerate(x):
+                d[i], _ = fastdtw(mat, m, dist=euclidean)
+
+            y, md, cnt = self.vote(d, y)
+        else:
+            y = '???'
+            md = -1
+            cnt = -1
+
+        return y, nc, md, cnt, time.time() - t0
+
+    def create_log(self):
+        config = get_config()
+        cp = get_absolute_path(config.get('KWS.classifier', 'file'))
+        self._log = os.path.join(os.path.dirname(cp), datetime.now().strftime('%y-%m-%d_%H-%M_') + os.path.basename(cp))
+        msg = 'Testing\nk=%i\nvertical tolerance=%i\nhorizontal tolerance=%i\n# training samples: %i\n' % \
+              (self._k, self._tol_v, self._tol_h, self.train.N)
+        print(msg, end='')
+        f = open(self._log, 'w+')
+        f.write(msg)
+
+    def log(self, msg):
+        print(msg, end='')
+        f = open(self._log, 'a')
+        f.write(msg)
+        f.close()
+
+    def test(self, mats, lbls, coords, imgs=None, ):
+        self.create_log()
+        self.log('# validation samples: %i\n' % len(mats))
+
+        img = None
+        cor = 0.0
+        for n, mat in enumerate(mats):
+            if imgs is not None:
+                img = imgs[n]
+
+            coord = coords[n].id
+            lbl = lbls[n]
+            ns = sum(self.train.Y == lbl)
+            y, nc, md, cnt, t = self.classify(mat, coord, img=img)
+
+            if self.clean_word(y) != self.clean_word(lbl):
+                msg = 'x   '
+            else:
+                cor += 1
+                msg = ''
+            msg += '%s -> %s' % (lbl, y)
+            msg += ' ' * (47 - len(msg))
+            msg += '#train-words: %i\t\t' \
+                   '#candidates: %i\t\t' \
+                   'min-dist: %.0f\t\t' \
+                   'votes: %i\t' \
+                   'dist-cmp-time: %.1f sec.\t\t' \
+                   'id: %s\n' \
+                   % (ns, nc, md, cnt, t, coord)
+
+            self.log(msg)
+
+        acc = cor / float(len(mats))
+        msg = "\nAccuracy: %.2f (%i samples)\n" % (acc, len(mats))
+        self.log(msg)
 
 
 class PairWiseDist:
@@ -135,7 +251,7 @@ class PairWiseDist:
         c = 0
         for i in range(self._M - 1):
             for j in range(i + 1, self._M):
-                print('%i, %i' % (i, j))
+                # print('%i, %i' % (i, j))
                 rows[c] = i
                 cols[c] = j
                 dist[c], _ = fastdtw(x[i], x[j], dist=euclidean)
@@ -144,7 +260,7 @@ class PairWiseDist:
                     print('.', end='', flush=True)
 
         et = time.time() - t1
-        print('\n%i pairs in %s sec.' % (n, et))
+        print('%i pairs in %s sec.' % (n, et))
         self._i = rows
         self._j = cols
         self._d = dist
@@ -177,13 +293,12 @@ class PairWiseDist:
 
 
 class DataSet:
-    def __init__(self, ids, imgs, mats, coords, words):
-        self.Y = ids
+    def __init__(self, words, imgs, mats, coords):
+        self.Y = words
         self.imgs = imgs
         self.h = np.array([x[0] for x in imgs])
         self.w = np.array([x[1] for x in imgs])
         self.rank = np.array([x[2] for x in imgs])
         self.X = mats
         self.coords = coords
-        self.words = words
-        self.N = len(ids)
+        self.N = len(words)
