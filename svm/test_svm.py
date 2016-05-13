@@ -73,7 +73,6 @@ def run():
     test_n = int(config.get('MNIST.sample.size', 'testing'))
 
     # Read the data
-
     y_train, x_train = fio.parse_mnist(get_absolute_path(config.get('MNIST', 'trainingset')), numlines=train_n)
     train_n = y_train.shape[0]
     y_test, x_test = fio.parse_mnist(get_absolute_path(config.get('MNIST', 'testset')), numlines=test_n)

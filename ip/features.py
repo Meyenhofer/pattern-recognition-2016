@@ -23,7 +23,6 @@ def compute_features(roi, window_width=1, step_size=3):
         bwt, wbt = transitions(gra)
         # digits not on the contour
         dk = gra == 0
-
         # foreground fraction
         fgf = bw.sum() / len(bw)
 
@@ -32,9 +31,9 @@ def compute_features(roi, window_width=1, step_size=3):
               wbt,
               dk.sum(),
               np.mean(gsm),
-              moment(gsm, moment=2),
-              moment(gsm, moment=3),
-              moment(gsm, moment=4)]
+              moment(gsm, moment=2)[0],
+              moment(gsm, moment=3)[0],
+              moment(gsm, moment=4)[0]]
 
         f.append(fv)
 
