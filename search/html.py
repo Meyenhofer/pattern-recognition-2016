@@ -9,20 +9,28 @@ from utils.transcription import WordCoord
 
 class HTMLVisualization:
     def __init__(self):
-        self.__document = Document()
-        self.html = self.__document.createElement('html')
-        self.head = self.__document.createElement('head')
-        self.body = self.__document.createElement('body')
+        self._document = Document()
+        self.html = self._document.createElement('html')
+        self.head = self._document.createElement('head')
+        self.body = self._document.createElement('body')
         self.html.appendChild(self.head)
         self.html.appendChild(self.body)
-        css = self.__document.createElement('style')
-        text = self.__document.createTextNode('div { display: table; }')
+        css = self._document.createElement('style')
+        text = self._document.createTextNode("""
+                div {
+                    display: table;
+                }
+                path {
+                    stroke-width: 0px;
+                    fill: red;
+                    fill-opacity: 40%;
+                }
+                """)
         css.appendChild(text)
         self.head.appendChild(css)
 
-    # TODO: Refactor!
     def add_image(self, img_src, svg_src, img_id=None, paths=None, words=None):
-        div = self.__document.createElement('div')
+        div = self._document.createElement('div')
         if img_id:
             div.setAttribute('id', img_id)
         div.setAttribute('style', 'background-image: url("' + img_src + '");')

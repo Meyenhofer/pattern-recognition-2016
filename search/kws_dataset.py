@@ -30,7 +30,7 @@ def display_all_occurences(locations, output='default.html'):
             else:
                 break
         # remove the words of the same doc from the list
-        word_ids = [w.__str__() for w in word_coords[:same_doc]]
+        word_ids = [str(w) for w in word_coords[:same_doc]]
         word_coords = word_coords[same_doc:]
         visual.add_image_by_id(curr_doc, word_ids=word_ids)
     visual.save(output)
