@@ -2,6 +2,8 @@
 *.ipr
 *.iws
 
+*.txt
+
 plots/
 
 

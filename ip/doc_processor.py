@@ -4,7 +4,7 @@ from glob import glob
 import matplotlib.pyplot as plt
 from skimage.io import imread
 
-from ip.features import compute_features, word_symmetry
+from ip.features import compute_features
 from ip.preprocess import word_preprocessor
 from utils.fio import get_config, get_absolute_path, parse_svg, path2polygon
 from utils.image import crop
@@ -65,7 +65,8 @@ def main(retake=True):
     threshold = float(config.get('KWS.prepro', 'segmentation_threshold'))
     relative_height = float(config.get('KWS.prepro', 'relative_height'))
     skew_resolution = float(config.get('KWS.prepro', 'angular_resolution'))
-    standard_height = float(config.get('KWS.prepro', 'central_height'))
+    primary_peak_height = float(config.get('KWS.prepro', 'primary_peak_height'))
+    secondary_peak_height = float(config.get('KWS.prepro', 'secondary_peak_height'))
     window_width = int(config.get('KWS.features', 'window_width'))
     step_size = int(config.get('KWS.features', 'step_size'))
 
@@ -96,12 +97,13 @@ def main(retake=True):
             poly = path2polygon(path)
             roi = crop(img, poly)
 
-            pre = word_preprocessor(roi,
-                                    threshold=threshold,
-                                    rel_height=relative_height,
-                                    skew_res=skew_resolution,
-                                    sta_height=standard_height,
-                                    save=word.code2string() + '_' + wid)
+            pre, sym = word_preprocessor(roi,
+                                         threshold=threshold,
+                                         rel_height=relative_height,
+                                         skew_res=skew_resolution,
+                                         ppw=primary_peak_height,
+                                         spw=secondary_peak_height,
+                                         save=word.code2string() + '_' + wid)
 
             if type(pre) is str:
                 print('\tpre-processing failed\n\t\t%s' % pre)
@@ -110,8 +112,6 @@ def main(retake=True):
             fea = compute_features(pre,
                                    window_width=window_width,
                                    step_size=step_size)
-
-            sym = word_symmetry(pre)
 
             write_word_features(txtp, wid, fea, [pre.shape[0], pre.shape[1], sym])
             print('...')

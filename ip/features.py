@@ -1,5 +1,7 @@
 import numpy as np
+from scipy.signal import argrelextrema
 from scipy.stats import moment
+import matplotlib.pyplot as plt
 
 
 def compute_features(roi, window_width=1, step_size=3):
@@ -17,23 +19,43 @@ def compute_features(roi, window_width=1, step_size=3):
         if len(gsm) == 0:
             gsm = np.array([0])
 
+        h = len(bw)
+
         # gradient
         gra = bw[0:-1] - bw[1:]
         # number of black-white and white-black transitions
         bwt, wbt = transitions(gra)
-        # digits not on the contour
+        # pixels not on the contour
         dk = gra == 0
+        dk = dk.sum() / h
         # foreground fraction
-        fgf = bw.sum() / len(bw)
+        fgf = bw.sum() / h
+
+        mi = np.where(bw)[0]
+        if len(mi) == 0:
+            top = bot = centroid = gravity = 0
+        else:
+            # top
+            top = np.min(mi) / h
+            # bottom
+            bot = np.max(mi) / h
+            # average mask positions (relative to height)
+            centroid = np.median(mi) / h
+            # center of gravity relative to height
+            gravity = np.mean(mi * gs) / h
 
         fv = [fgf,
               bwt,
               wbt,
-              dk.sum(),
+              dk,
+              top,
+              bot,
+              centroid,
+              gravity,
               np.mean(gsm),
-              moment(gsm, moment=2)[0],
-              moment(gsm, moment=3)[0],
-              moment(gsm, moment=4)[0]]
+              moment(gsm, moment=2),
+              moment(gsm, moment=3),
+              moment(gsm, moment=4)]
 
         f.append(fv)
 
@@ -66,30 +88,73 @@ def transitions(bin_img):
     return black_white_count, white_black_count
 
 
-def word_symmetry(img, rel_height=0.66, sta_height=20):
+def word_symmetry(img, rel_height=0.5, ppw=20, spw=8, show=False):
     """
     returns [1...4]
-    1: lowercase like a, e, i, o, u
-    2: letters like b, t, h,
-    3: letters like g, p, q
-    4: letters like f
+    0: lowercase like a, e, i, o, u
+    1: letters like b, t, h,
+    2: letters like g, p, q
+    3: letters like f
     """
     y = img.sum(1)
-    i = y > y.max() * rel_height
-    p = y[i]
-    px = y.argmax()
+    ym = y.max()
+    ya = y.argmax()
+    arm = argrelextrema(y, np.greater)[0]
+    rmv = y[arm]
+    ch = (ym * rel_height)
+    i = y > ch
+    ii = np.where(i)[0]
 
-    u = np.where(~i)
-    up = u < px
-    up = up.shape[0]
-    lo = u > px
-    lo = lo.shape[0]
+    u = np.where(np.array(~i, dtype=bool))[0]
+    upm = max(ii)
+    upi = u[u > upm]
+    lom = min(ii)
+    loi = u[u < lom]
 
-    if y.shape[0] <= sta_height * 1.5:
-        return 1
-    elif (up > 10) and (lo > 10):
-        return 4
-    elif up > 10:
-        return 2
-    else:
-        return 3
+    if show:
+        x = np.linspace(0, y.shape[0] - 1, y.shape[0])
+
+        plt.figure()
+        ax1 = plt.subplot2grid((1,3), (0, 0), colspan=2)
+        ax1.imshow(img)
+        ax1.set_xlim([0, img.shape[1] -1])
+        ax2 = plt.subplot2grid((1,3), (0, 2))
+        ax2.plot(y, x)
+        ax2.set_ylim([0, y.shape[0] - 1])
+        ax2.invert_yaxis()
+        ax2.plot([ch, ch], [x[0], x[-1]])
+        ax2.plot([0, ym], [ya, ya])
+        ax2.plot(rmv, arm, 'kx')
+        plt.show()
+
+    sym = 0
+    if len(loi) > 0:
+        sym += (sum(arm <= max(loi)) > 0) or ((lom - 1) > spw)
+    if len(upi) > 0:
+        sym += 2 * ((sum(arm >= min(upi)) > 0) or ((len(y) - upm - 1) > spw))
+
+    return sym
+
+
+def word_symmetry2(msk, show=True):
+    """
+    An alternative could be to analyze the min and max x coordinates...
+    """
+    l = []
+    for r in range(msk.shape[0]):
+        row = msk[r, :]
+        i = np.where(row)[0]
+        if len(i) > 0:
+            l.append(max(i) - min(i))
+        else:
+            l.append(0)
+
+    l = np.array(l)
+
+    if show:
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        ax.plot(l)
+        fig.show()
+
+    # TODO: not finished

@@ -8,6 +8,7 @@ from skimage.filters import threshold_otsu
 from skimage.morphology import reconstruction, diamond
 from skimage.transform import rescale
 
+from ip.features import word_symmetry, word_symmetry2
 from ip.register import skew_correction
 from utils.fio import get_image_roi, get_project_root_directory, get_config
 from utils.transcription import get_transcription
@@ -109,11 +110,7 @@ def standardize_roi_height(roi, standard_height=20, rel_height=0.666):
     h = standard_height * 5
 
     y = roi.sum(1)
-    yp = y[y < y.max() * rel_height]
-
-    # nzy = yp.nonzero()
-    # y_lb = nzy[0].min()
-    # y_ub = nzy[0].max()
+    yp = y[y >= y.max() * rel_height]
 
     pw = yp.shape[0]
     sf = standard_height / pw
@@ -128,19 +125,24 @@ def standardize_roi_height(roi, standard_height=20, rel_height=0.666):
         else:                   # if the scale factor estimation is off,
             res = roi           # but the image is still smaller than the standard, just center.
 
-    w = res.shape[1]
+    # TODO: the centering should depend on the symmetry of the word (4 cases: are, gone, to, for)
+    # w = res.shape[1]
+    # c = int(h / 2)
+    # os_p = int(np.floor(res.shape[0] / 2))
+    # os_m = int(np.ceil(res.shape[0] / 2))
+    # uni = np.zeros((h, w))
+    # uni[c - os_m: c + os_p, :] = res
 
-    c = int(h / 2)  # TODO: the centering should depend on the symmetry of the word (4 cases: are, gone, to, for)
-    os_p = int(np.floor(res.shape[0] / 2))
-    os_m = int(np.ceil(res.shape[0] / 2))
-
-    uni = np.zeros((h, w))
-    uni[c - os_m: c + os_p, :] = res
+    # Pad
+    zer = np.zeros((1, res.shape[1]))
+    uni = np.append(zer, res, axis=0)
+    uni = np.append(uni, zer, axis=0)
+    uni = uni / uni.max()
 
     return uni
 
 
-def word_preprocessor(roi, threshold=0.2, rel_height=0.666, skew_res=0.33, sta_height=20, show=False, save=None):
+def word_preprocessor(roi, threshold=0.2, rel_height=0.666, skew_res=0.33, ppw=20, spw=13, show=False, save=None):
     # scale intensity
     ma = roi.max()
     mi = roi.min()
@@ -163,19 +165,20 @@ def word_preprocessor(roi, threshold=0.2, rel_height=0.666, skew_res=0.33, sta_h
 
     # crop
     cle = clean_crop(img, threshold=threshold, rel_height=rel_height)
-    if cle.shape[0] < (sta_height * 0.4):
+    if cle.shape[0] < (ppw * 0.5):
         if save is not None:
             cle = cle / cle.max()
-            save_word_image(cle, "failed_" + save)
-        return 'image too small (%s)' % cle.shape[0]
+            save_word_image(cle, "___FAILED_" + save)
+
+        h = cle.shape[0]
+        return 'image height too small (%s)' % h, None
 
     # standardize the height
-    # TODO this might not work as robustly as it should
-    # uni = standardize_roi_height(cle, standard_height=sta_height, rel_height=rel_height)
-    zer = np.zeros((1, cle.shape[1]))
-    uni = np.append(zer, cle, axis=0)
-    uni = np.append(uni, zer, axis=0)
-    uni = uni / uni.max()
+    uni = standardize_roi_height(cle, standard_height=ppw, rel_height=rel_height)
+
+    # word symmetry
+    sym = word_symmetry(cle, 0.5, ppw=ppw, spw=spw)
+    # sym = word_symmetry2(msk, show=True)
 
     # plot
     if show:
@@ -191,13 +194,13 @@ def word_preprocessor(roi, threshold=0.2, rel_height=0.666, skew_res=0.33, sta_h
         plt.show()
 
     if save is not None:
-        save_word_image(uni, save)
+        save_word_image(uni, str(sym) + '_' + save)      # TODO: remove sym
 
-    return uni
+    return uni, sym
 
 
 def save_word_image(img, wid):
     config = get_config()
     plotdir = os.path.join(get_project_root_directory(), config.get('Plots', 'directory'))
-    plotfile = os.path.join(plotdir, wid + '_word-prepro.png')
-    imsave(plotfile, img)
+    plotfile = os.path.join(plotdir, wid + '.png')
+    imsave(plotfile, img) # TODO: there is a warning about precision loss (convert from float64 to uint16)
