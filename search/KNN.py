@@ -78,7 +78,7 @@ class KNN:
     def set_k(self, value):
         self._k = value
 
-    def set_tol(self, hor, ver):
+    def set_tol(self, ver, hor):
         self._tol_h = hor
         self._tol_v = ver
 
@@ -120,8 +120,9 @@ class KNN:
     def vote(self, dists, lbls):
         t = [(x, y) for x, y in zip(dists, lbls)]
         t = sorted(t, key=lambda x: x[0])
+
         # take n nearest
-        kn = t[0:self._k]
+        kn = t[0: self._k - 1]
 
         # the dictator case
         if self._k == 1:
@@ -132,11 +133,24 @@ class KNN:
         candidates = [x for x in set(votes)]
         counts = [votes.count(x) for x in candidates]
 
-        if len(counts) == len(set(counts)):
-            index = np.argmax(counts)
-            return candidates[index], kn[0][0], counts[index]
-        else:
-            return kn[0][1], kn[0][0], 1    # tie break the tie with the minimum distance
+        # among the candidates with the most votes select the nearest
+        max_count = max(counts)
+        min_dists = []
+        best_cans = []
+        max_counts = []
+        for can, cnt in zip(candidates, counts):
+            if cnt == max_count:
+                dists = []
+                for x in t:
+                    if x[1] == can:
+                        dists.append(x[0])
+
+                min_dists.append(min(dists))
+                max_counts.append(cnt)
+                best_cans.append(can)
+
+        index = np.argmin(min_dists)
+        return best_cans[index], min_dists[index], max_counts[index]
 
     def classify(self, mat, coord, img=None):
         """
@@ -151,7 +165,6 @@ class KNN:
             x = self.train.X
             y = self.train.Y
             c = np.array([x.id for x in self.train.coords])
-            nc = self.train.N
         else:
             # subset index
             h_min = img[0] - self._tol_v
@@ -160,30 +173,34 @@ class KNN:
             w_max = img[1] + self._tol_h
 
             i = ((self.train.h >= h_min) & (h_max >= self.train.h)) & \
-                (self.train.w >= w_min) & (w_max >= self.train.h)
+                (self.train.w >= w_min) & (w_max >= self.train.h) & \
+                (self.train.rank == img[2])
             # x = np.append([mat], self.train.X[i])
             x = self.train.X[i]
             y = self.train.Y[i]
             c = np.array([x.id for x in self.train.coords[i]])
-            nc = sum(i)
 
-        not_itself = coord != c
-        # print(sum(~not_itself))
-        x = x[not_itself]
-        y = y[not_itself]
+        # default output ...
+        lbl = '???'
+        md = -1
+        cnt = -1
+        nc = x.shape[0]
 
+        # ... because there are a lot of ways to fail
         if nc > 0:
-            d = np.zeros((nc,))
-            for i, m in enumerate(x):
-                d[i], _ = fastdtw(mat, m, dist=euclidean)
+            not_itself = coord != c
+            # print(sum(~not_itself))
+            x = x[not_itself]
+            y = y[not_itself]
+            nc = x.shape[0]
+            if nc > 0:
+                d = np.zeros((nc,))
+                for i, m in enumerate(x):
+                    d[i], _ = fastdtw(mat, m, dist=euclidean)
 
-            y, md, cnt = self.vote(d, y)
-        else:
-            y = '???'
-            md = -1
-            cnt = -1
+                lbl, md, cnt = self.vote(d, y)
 
-        return y, nc, md, cnt, time.time() - t0
+        return lbl, nc, md, cnt, time.time() - t0
 
     def create_log(self):
         config = get_config()
@@ -196,7 +213,7 @@ class KNN:
         f.write(msg)
 
     def log(self, msg):
-        print(msg, end='')
+        print(msg, end='', flush=True)
         f = open(self._log, 'a')
         f.write(msg)
         f.close()
@@ -207,6 +224,7 @@ class KNN:
 
         img = None
         cor = 0.0
+        ntr = 0.0
         for n, mat in enumerate(mats):
             if imgs is not None:
                 img = imgs[n]
@@ -214,6 +232,8 @@ class KNN:
             coord = coords[n].id
             lbl = lbls[n]
             ns = sum(self.train.Y == lbl)
+            ntr += ns == 0
+
             y, nc, md, cnt, t = self.classify(mat, coord, img=img)
 
             if self.clean_word(y) != self.clean_word(lbl):
@@ -221,21 +241,36 @@ class KNN:
             else:
                 cor += 1
                 msg = ''
+
             msg += '%s -> %s' % (lbl, y)
             msg += ' ' * (47 - len(msg))
-            msg += '#train-words: %i\t\t' \
-                   '#candidates: %i\t\t' \
-                   'min-dist: %.0f\t\t' \
-                   'votes: %i\t' \
-                   'dist-cmp-time: %.1f sec.\t\t' \
-                   'id: %s\n' \
-                   % (ns, nc, md, cnt, t, coord)
-
+            msg += self.append_str('#train-words', ns)
+            msg += self.append_str('#candidates', nc)
+            msg += self.append_str('min-dist', md)
+            msg += self.append_str('votes', cnt)
+            msg += self.append_str('cpu-time', t)
+            msg += 'id: %s\n' % coord
             self.log(msg)
 
         acc = cor / float(len(mats))
-        msg = "\nAccuracy: %.2f (%i samples)\n" % (acc, len(mats))
+        msg = "\nOverall Accuracy: %.2f (%i samples)\n" % (acc, len(mats))
         self.log(msg)
+        n = float(len(mats) - ntr)
+        acc = cor / n
+        msg = "Accuracy (without counting new samples with no training data): %.2f (%i samples)\n" % (acc, n)
+        self.log(msg)
+
+    @staticmethod
+    def append_str(txt, val):
+        if type(val) == float:
+            msg = '%s: %0.2f' % (txt, val)
+        elif type(val) == str or type(val) == np.str_:
+            msg = '%s: %s' % (txt, val)
+        else:
+            msg = '%s: %i' % (txt, val)
+        msg += ' ' * (8 - len(msg) + len(txt))
+
+        return msg
 
 
 class PairWiseDist:

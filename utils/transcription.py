@@ -77,3 +77,18 @@ def get_word(coord, data=None):
     for co, wo in data:
         if co.id == coord:
             return wo
+
+
+def get_coords(word, data=None):
+    if type(word) == Word:
+        word = word.code2string()
+
+    if data is None:
+        data = get_transcription()
+
+    coords = []
+    for co, wo in data:
+        if wo.code2string() == word:
+            coords.append(co)
+
+    return coords
