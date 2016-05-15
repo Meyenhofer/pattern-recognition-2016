@@ -3,7 +3,7 @@
 #include "numpy/arrayobject.h"
 #include "dtw.h"
 
-static PyObject* pairwise_dist(PyObject *dummy, PyObject *args) {
+static PyObject* dtw_extension(PyObject *dummy, PyObject *args) {
     PyObject *arg1 = NULL;
     PyObject *arr1 = NULL;
     PyObject *arg2 = NULL;
@@ -78,20 +78,19 @@ static PyObject* pairwise_dist(PyObject *dummy, PyObject *args) {
 }
 
 static struct PyMethodDef methods[] = {
-    {"pairwisedist", pairwise_dist, METH_VARARGS, "Pairwise distinct"},
+    {"dtwdistance", dtw_extension, METH_VARARGS, "Compute DTW Distance"},
     {NULL, NULL, 0, NULL}
 };
 
 static struct PyModuleDef module = {
   PyModuleDef_HEAD_INIT,
-  "pairwisedist",
-  "Pairwise distinct",
+  "dtwextension",
+  "Dynamic Time Warping C extension",
   -1,
   methods
 };
 
-PyMODINIT_FUNC PyInit_pairwisedist(void) {
-    /* (void)Py_InitModule("pairwisedist", methods); */
+PyMODINIT_FUNC PyInit_dtwextension(void) {
     import_array();
     return PyModule_Create(&module);
 }
