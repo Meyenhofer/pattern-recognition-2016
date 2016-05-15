@@ -6,8 +6,10 @@
 static PyObject* pairwise_dist(PyObject *dummy, PyObject *args) {
     PyObject *arg1 = NULL;
     PyObject *arr1 = NULL;
+    PyObject *arg2 = NULL;
+    PyObject *arr2 = NULL;
 
-    if (!PyArg_ParseTuple(args, "O", &arg1)) {
+    if (!PyArg_ParseTuple(args, "OO", &arg1, &arg2)) {
       return NULL;
     }
 
@@ -15,87 +17,64 @@ static PyObject* pairwise_dist(PyObject *dummy, PyObject *args) {
     if (arr1 == NULL) {
       return NULL;
     }
+    arr2 = PyArray_FROM_OTF(arg2, NPY_DOUBLE, NPY_ARRAY_IN_ARRAY);
+    if (arr2 == NULL) {
+      return NULL;
+    }
 
     // Number of dimensions
-    int nd = PyArray_NDIM((PyArrayObject*)arr1);
-    int arr_type = PyArray_TYPE((PyArrayObject*)arr1);
-    npy_intp *dims = PyArray_DIMS((PyArrayObject*)arr1);
-    int arr_size = (dims[0] * (dims[0] - 1)) / 2;
-    double rows[arr_size];
-    double cols[arr_size];
-    double dist[arr_size];
-    int c = 0;
+    int nd1 = PyArray_NDIM((PyArrayObject*)arr1);
+    int arr_type1 = PyArray_TYPE((PyArrayObject*)arr1);
+    npy_intp *dims1 = PyArray_DIMS((PyArrayObject*)arr1);
+    int nd2 = PyArray_NDIM((PyArrayObject*)arr2);
+    int arr_type2 = PyArray_TYPE((PyArrayObject*)arr2);
+    npy_intp *dims2 = PyArray_DIMS((PyArrayObject*)arr2);
     int r = 0;
-    npy_double ***input_array = NULL;
-    r = PyArray_AsCArray((PyObject**)&arr1, (void***)&input_array, dims, nd, PyArray_DescrFromType(arr_type));
+    npy_double **input1 = NULL;
+    r = PyArray_AsCArray((PyObject**)&arr1, (void**)&input1, dims1, nd1, PyArray_DescrFromType(arr_type1));
+    if (r < 0) {
+      PyErr_SetString(PyExc_RuntimeError, "Could not convert input to C array");
+      return NULL;
+    }
+    npy_double **input2 = NULL;
+    r = PyArray_AsCArray((PyObject**)&arr2, (void**)&input2, dims2, nd2, PyArray_DescrFromType(arr_type2));
     if (r < 0) {
       PyErr_SetString(PyExc_RuntimeError, "Could not convert input to C array");
       return NULL;
     }
 
     // DTW
-    for (int i = 0; i < dims[0] - 1; i++) {
-      for (int j = i + 1; j < dims[0]; j++) {
-        rows[c] = i;
-        cols[c] = j;
-        matrix_t *mat_a = malloc(sizeof(*mat_a));
-        matrix_t *mat_b = malloc(sizeof(*mat_b));
-        double **arr_a = alloc_2darr(dims[1], dims[2]);
-        double **arr_b = alloc_2darr(dims[1], dims[2]);
-        for (int x = 0; x < dims[1]; x++) {
-          memcpy(arr_a[x], input_array[i][x], sizeof(**arr_a));
-          memcpy(arr_b[x], input_array[j][x], sizeof(**arr_b));
-        }
-        mat_a->arr = arr_a;
-        mat_a->rows = dims[1];
-        mat_a->cols = dims[2];
-        mat_b->arr = arr_b;
-        mat_b->rows = dims[1];
-        mat_b->cols = dims[2];
-        dist[c] = dtw_distance(mat_a, mat_b);
-        free_matrix(mat_a);
-        free_matrix(mat_b);
-        c += 1;
-        // Print a dot for every 1000 words processed
-        if (c % 1000 == 0) {
-          printf(".");
-        }
-      }
+    matrix_t *mat_a = malloc(sizeof(*mat_a));
+    matrix_t *mat_b = malloc(sizeof(*mat_b));
+    double **arr_a = alloc_2darr(dims1[0], dims1[1]);
+    double **arr_b = alloc_2darr(dims2[0], dims2[1]);
+    for (int i = 0; i < dims1[0]; i++) {
+      memcpy(arr_a[i], input1[i], dims1[1] * sizeof(**arr_a));
     }
-
-    PyObject *list = PyList_New(3);
-    if (list == NULL) {
-      PyErr_SetString(PyExc_RuntimeError, "Could not create list");
+    for (int j = 0; j < dims2[0]; j++) {
+      memcpy(arr_b[j], input2[j], dims2[1] * sizeof(**arr_b));
+    }
+    mat_a->arr = arr_a;
+    mat_a->rows = dims1[0];
+    mat_a->cols = dims1[1];
+    mat_b->arr = arr_b;
+    mat_b->rows = dims2[0];
+    mat_b->cols = dims2[1];
+    double dist = dtw_distance(mat_a, mat_b);
+    free_matrix(mat_a);
+    free_matrix(mat_b);
+    PyObject *value = PyFloat_FromDouble(dist);
+    if (value == NULL) {
+      PyErr_SetString(PyExc_RuntimeError, "Could not convert double to object");
       return NULL;
     }
-    npy_intp obj_dims[1] = { (npy_intp)c };
-    PyObject *obj1 = PyArray_SimpleNew(1, obj_dims, NPY_DOUBLE);
-    memcpy(PyArray_DATA((PyArrayObject*)obj1), rows, sizeof(rows));
-    r = PyList_SetItem(list, 0, obj1);
-    if (r < 0) {
-      PyErr_SetString(PyExc_RuntimeError, "Could not append ROWS array to list");
-      return NULL;
-    }
-    PyObject *obj2 = PyArray_SimpleNew(1, obj_dims, NPY_DOUBLE);
-    memcpy(PyArray_DATA((PyArrayObject*)obj2), cols, sizeof(cols));
-    r = PyList_SetItem(list, 1, obj2);
-    if (r < 0) {
-      PyErr_SetString(PyExc_RuntimeError, "Could not append COLS array to list");
-      return NULL;
-    }
-    PyObject *obj3 = PyArray_SimpleNew(1, obj_dims, NPY_DOUBLE);
-    memcpy(PyArray_DATA((PyArrayObject*)obj3), dist, sizeof(dist));
-    r = PyList_SetItem(list, 2, obj3);
-    if (r < 0) {
-      PyErr_SetString(PyExc_RuntimeError, "Could not append DIST array to list");
-      return NULL;
-    }
-
     Py_DECREF(arr1);
+    Py_DECREF(arr2);
 
-    PyArray_Free(arr1, (void*)input_array);
+    PyArray_Free(arr1, (void*)input1);
+    PyArray_Free(arr2, (void*)input2);
 
-    return list;
+    return value;
 }
 
 static struct PyMethodDef methods[] = {
