@@ -44,25 +44,9 @@ static PyObject* dtw_extension(PyObject *dummy, PyObject *args) {
     }
 
     // DTW
-    matrix_t *mat_a = malloc(sizeof(*mat_a));
-    matrix_t *mat_b = malloc(sizeof(*mat_b));
-    double **arr_a = alloc_2darr(dims1[0], dims1[1]);
-    double **arr_b = alloc_2darr(dims2[0], dims2[1]);
-    for (int i = 0; i < dims1[0]; i++) {
-      memcpy(arr_a[i], input1[i], dims1[1] * sizeof(**arr_a));
-    }
-    for (int j = 0; j < dims2[0]; j++) {
-      memcpy(arr_b[j], input2[j], dims2[1] * sizeof(**arr_b));
-    }
-    mat_a->arr = arr_a;
-    mat_a->rows = dims1[0];
-    mat_a->cols = dims1[1];
-    mat_b->arr = arr_b;
-    mat_b->rows = dims2[0];
-    mat_b->cols = dims2[1];
-    double dist = dtw_distance(mat_a, mat_b);
-    free_matrix(mat_a);
-    free_matrix(mat_b);
+    matrix_t mat_a = { input1, dims1[0], dims1[1] };
+    matrix_t mat_b = { input2, dims2[0], dims2[1] };
+    double dist = dtw_distance(&mat_a, &mat_b);
     PyObject *value = PyFloat_FromDouble(dist);
     if (value == NULL) {
       PyErr_SetString(PyExc_RuntimeError, "Could not convert double to object");
