@@ -92,3 +92,15 @@ def get_coords(word, data=None):
             coords.append(co)
 
     return coords
+
+
+def get_doc_coords(doc_ids, data=None):
+    if data is None:
+        data = get_transcription()
+
+    coords = []
+    for co, wo in data:
+        if co.doc_id in doc_ids:
+            coords.append(co)
+
+    return coords
