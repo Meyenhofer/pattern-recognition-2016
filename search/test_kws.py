@@ -1,5 +1,5 @@
 from search.KNN import KNN
-from utils.transcription import get_coords
+from utils.transcription import get_coords, get_doc_coords
 
 
 def subset_test():
@@ -41,29 +41,29 @@ def subset_test():
 
     val = KNN()
     val.parse(id_filter=[x.id for x in coords])
-    val.set_tol(100, 500)
-    val.set_k(3)
-    val.test(val.train.X, val.train.Y, imgs=val.train.imgs, coords=val.train.coords)
+    # val.set_tol(100, 500)
+    # val.set_k(3)
+    val.test(val.train.X, val.train.Y, val.train.coords, imgs=val.train.imgs)
 
 
 def training_test():
     knn = KNN()
     knn.parse_all()
 
-    knn.set_k(3)
-    knn.set_tol(20, 200)
+    # knn.set_k(3)
+    # knn.set_tol(20, 200)
 
-    knn.test(knn.train.X, knn.train.Y, imgs=knn.train.imgs, coords=knn.train.coords)
+    knn.test(knn.train.X, knn.train.Y, knn.train.coords, imgs=knn.train.imgs)
 
 
 def validation_test():
     knn = KNN()
     knn.parse_all()
 
-    knn.set_k(3)
-    knn.set_tol(20, 300)
+    # knn.set_k(3)
+    # knn.set_tol(20, 300)
 
-    knn.test(knn.valid.X, knn.valid.Y, imgs=knn.valid.imgs, coords=knn.valid.coords)
+    knn.test(knn.valid.X, knn.valid.Y,knn.valid.coords, imgs=knn.valid.imgs)
 
 
 if __name__ == '__main__':

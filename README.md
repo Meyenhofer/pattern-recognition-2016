@@ -54,11 +54,20 @@ i, ...) will be the predominant peak on the vertical projection of the pixels.
 
 ### Feature computation
 Sliding window approach. Local descriptor includes:
-- contour positions
-- contour deviations
 - black-white transitions
 - foreground fractions
-- moments 
+- relative positions (top, bottom, centroid, center of mass)
+- gray-scale moments
+
+### Performance
+
+dataset     | overall accuracy | accuracy with training samples | cpu time 
+:---------: | :--------------: | :----------------------------: | :-------: 
+training    | 0.47             | 0.47                           | 10h 30min      
+validation  | 0.32             | 0.51                           | 8h 50min      
+everything  | 0.42             | 0.48                           | 19h 20 min      
+
+![accuracy vs. training samples][fig3.1]
 
 
 [cython]: http://cython.org/
@@ -82,3 +91,5 @@ Sliding window approach. Local descriptor includes:
 [fig2.1]: https://raw.githubusercontent.com/dwettstein/pattern-recognition-2016/master/figs/SVM_confusion-matrix_linear.png
 [fig2.2]: https://raw.githubusercontent.com/dwettstein/pattern-recognition-2016/master/figs/SVM_confusion-matrix_poly_3.png
 [fig2.3]: https://raw.githubusercontent.com/dwettstein/pattern-recognition-2016/master/figs/SVM_confusion-matrix_poly_4.png
+
+[fig3.1]: https://raw.githubusercontent.com/dwettstein/pattern-recognition-2016/master/figs/kws_samples-vs-accuracy.png
