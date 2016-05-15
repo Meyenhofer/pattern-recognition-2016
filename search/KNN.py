@@ -7,6 +7,7 @@ import time
 from fastdtw import fastdtw
 from scipy.spatial.distance import euclidean
 
+from dtwextension import dtwdistance
 from utils.fio import get_absolute_path, parse_feature_map
 from utils.fio import get_config
 from utils.transcription import get_transcription, get_word, WordCoord
@@ -196,7 +197,8 @@ class KNN:
             if nc > 0:
                 d = np.zeros((nc,))
                 for i, m in enumerate(x):
-                    d[i], _ = fastdtw(mat, m, dist=euclidean)
+                    # d[i], _ = fastdtw(mat, m, dist=euclidean)
+                    d[i] = dtwdistance(mat, m)
 
                 lbl, md, cnt = self.vote(d, y)
 
@@ -289,7 +291,8 @@ class PairWiseDist:
                 # print('%i, %i' % (i, j))
                 rows[c] = i
                 cols[c] = j
-                dist[c], _ = fastdtw(x[i], x[j], dist=euclidean)
+                # dist[c], _ = fastdtw(x[i], x[j], dist=euclidean)
+                dist[c] = dtwdistance(x[i], x[j])
                 c += 1
                 if c % 1000 == 0:
                     print('.', end='', flush=True)
