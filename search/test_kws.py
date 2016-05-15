@@ -51,7 +51,7 @@ def training_test():
     knn.parse_all()
 
     knn.set_k(3)
-    knn.set_tol(5, 50)
+    knn.set_tol(20, 200)
 
     knn.test(knn.train.X, knn.train.Y, imgs=knn.train.imgs, coords=knn.train.coords)
 
@@ -61,7 +61,7 @@ def validation_test():
     knn.parse_all()
 
     knn.set_k(3)
-    knn.set_tol(8, 50)
+    knn.set_tol(20, 300)
 
     knn.test(knn.valid.X, knn.valid.Y, imgs=knn.valid.imgs, coords=knn.valid.coords)
 
