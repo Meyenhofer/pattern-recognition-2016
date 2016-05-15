@@ -40,8 +40,8 @@ def compute_word_dimensions():
     hr = []
     rr = []
     for word in stats:
-        w = [x[0] for x in stats[word]]
-        h = [x[1] for x in stats[word]]
+        h = [x[0] for x in stats[word]]
+        w = [x[1] for x in stats[word]]
         r = [x[2] for x in stats[word]]
 
         wr.append(max(w) - min(w))
@@ -50,13 +50,27 @@ def compute_word_dimensions():
 
     fig = plt.figure()
     ax1 = fig.add_subplot(131)
-    ax1.hist(wr, 100)
-    plt.xlabel('width ranges')
+    ax1.hist(wr, 30, normed=1, histtype='step', cumulative=1)
+    ax1.margins(x=0)
+    plt.xlabel('word width ranges')
+    plt.grid(b=True, which='major', linestyle='-')
+    plt.grid(b=True, which='minor')
+    plt.minorticks_on()
     ax2 = fig.add_subplot(132)
-    ax2.hist(hr, 50)
-    plt.xlabel('height ranges')
+    ax2.hist(hr, 30, normed=1, histtype='step', cumulative=1)
+    ax2.margins(x=0)
+    plt.grid(b=True, which='major', linestyle='-')
+    plt.grid(b=True, which='minor')
+    plt.minorticks_on()
+    plt.xlabel('word height ranges')
+    plt.title('cumulative distributions')
     ax3 = fig.add_subplot(133)
-    ax3.hist(rr)
+    ax3.hist(rr, normed=1, histtype='step', cumulative=1)
+    ax3.margins(x=0)
+    plt.xlabel('word rank range')
+    plt.grid(b=True, which='major', linestyle='-')
+    plt.grid(b=True, which='minor')
+    plt.minorticks_on()
     plt.show()
 
 
