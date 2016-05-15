@@ -8,32 +8,13 @@ from skimage.filters import threshold_otsu
 from skimage.morphology import reconstruction, diamond
 from skimage.transform import rescale
 
-from ip.features import word_symmetry, word_symmetry2
+from ip.features import word_symmetry
 from ip.register import skew_correction
-from utils.fio import get_image_roi, get_project_root_directory, get_config
-from utils.transcription import get_transcription
+from utils.fio import get_project_root_directory, get_config
 
 
 def gaussian(x, a, x0, sigma):
     return a * np.exp(-(x - x0)**2 / (2 * sigma**2))
-
-
-def compute_central_heights():
-    trc = get_transcription()
-    wh = []
-    for coord, word in trc:
-        roi = get_image_roi(coord)
-        msk = create_word_mask(roi)
-        img = np.copy(roi)
-        img = img.max() - img
-        img[msk < 1] = 0
-        y = img.sum(1)
-        y_max = y.max()
-        y[y < y_max * 0.6] = 0
-        nz = y.nonzero()
-        wh.append(nz[0].shape[0])
-
-        return np.array(wh)
 
 
 def clean_crop(roi, rel_height=0.5, mask=None, threshold=None):
