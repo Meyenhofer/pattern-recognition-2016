@@ -3,11 +3,13 @@ import matplotlib.pyplot as plt
 
 from ip.preprocess import create_word_mask
 from search.KNN import KNN
-from utils.fio import get_image_roi
+from utils.fio import get_image_roi, get_config
 from utils.transcription import get_transcription
 
 
 def compute_central_heights():
+    config = get_config()
+    rh = float(config.get('KWS.prepro', 'relative_height'))
     trc = get_transcription()
     wh = []
     for coord, word in trc:
@@ -18,11 +20,17 @@ def compute_central_heights():
         img[msk < 1] = 0
         y = img.sum(1)
         y_max = y.max()
-        y[y < y_max * 0.6] = 0
+        y[y < y_max * rh] = 0
         nz = y.nonzero()
         wh.append(nz[0].shape[0])
 
-        return np.array(wh)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.hist(wh, 30, normed=True)
+    plt.xlabel('central peak heights of vertical word projection')
+    plt.show()
+
+    return np.array(wh)
 
 
 def compute_word_dimensions():
@@ -75,4 +83,9 @@ def compute_word_dimensions():
 
 
 if __name__ == '__main__':
+    """
+    Produce some plots to help tuning the parameter of the key word search.
+    """
     compute_word_dimensions()
+
+    ch = compute_central_heights()
