@@ -46,10 +46,9 @@ class HTMLVisualization:
         self.body.appendChild(div)
 
     def add_image_by_id(self, img_id, word_ids=None):
-        config = get_config()
-        img_dir = get_absolute_path(config.get('KWS', 'images'))
+        img_dir = get_absolute_path(self.config.get('KWS', 'images'))
         img_src = os.path.join(img_dir, img_id + '.jpg')
-        svg_dir = get_absolute_path(config.get('KWS', 'locations'))
+        svg_dir = get_absolute_path(self.config.get('KWS', 'locations'))
         svg_src = os.path.join(svg_dir, img_id + '.svg')
         self.add_image(img_src, svg_src, words=word_ids, img_id=img_id)
 

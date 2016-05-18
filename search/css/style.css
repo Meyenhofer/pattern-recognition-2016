@@ -1,0 +1,79 @@
+body {
+  font-size: 18px;
+  padding-left: 200px;
+}
+
+div.svg {
+  display: table;
+}
+
+path {
+  stroke-width: 0px;
+  fill: red;
+  fill-opacity: 0.4;
+  pointer-events: all;
+}
+
+#sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  padding: 10px;
+  width: 150px;
+  z-index: 1;
+  background-color: white;
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none;   /* Chrome/Safari/Opera */
+  -khtml-user-select: none;    /* Konqueror */
+  -moz-user-select: none;      /* Firefox */
+  -ms-user-select: none;       /* Internet Explorer/Edge */
+  user-select: none;
+}
+
+#sidebar-title {
+  font-weight: bold;
+  -webkit-user-select: initial;
+  -moz-user-select: initial;
+  -ms-user-select: initial;
+  user-select: initial;
+}
+
+.checkicon {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  top: 4px;
+  cursor: hand;
+}
+
+.invisible {
+  display: none;
+}
+
+.word {
+  margin-left: 10px;
+  cursor: hand;
+}
+
+.not-allowed {
+  cursor: not-allowed;
+}
+
+.tooltip {
+  position: absolute;
+  fill: #333;
+  fill-opacity: 1;
+}
+
+.tooltip-div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.tooltip-text {
+  color: white;
+  margin-top: 18px;
+  font-size: 20px;
+}

@@ -13,7 +13,7 @@ def search_word(word, save=False):
 
     return locations
 
-def display_all_occurences(locations, output='default.html'):
+def display_all_occurences(word, locations, output='default.html', all_tooltips=True):
     """
     Displays all images that are in the list of locations and highlights all
     locations within the images.
