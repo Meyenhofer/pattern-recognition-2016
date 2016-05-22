@@ -1,3 +1,4 @@
+import numpy as np
 from collections import OrderedDict
 
 from utils.fio import get_config, get_absolute_path
@@ -68,14 +69,14 @@ def get_transcription(did=None):
 
 
 def get_word(coord, data=None):
-    if type(coord) == WordCoord:
-        coord = coord.id
+    if [str, np.str, np.str_].count(type(coord)) > 0:
+        coord = WordCoord(coord)
 
     if data is None:
         data = get_transcription(coord.doc_id)
 
     for co, wo in data:
-        if co.id == coord:
+        if co.id == coord.id:
             return wo
 
 
