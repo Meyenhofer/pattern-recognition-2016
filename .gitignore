@@ -5,7 +5,7 @@
 *.txt
 
 plots/
-
+vis/
 
 # Created by https://www.gitignore.io/api/python
 
@@ -102,3 +102,4 @@ ENV/
 *.sln
 *.suo
 *.pyproj
+.vscode/

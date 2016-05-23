@@ -6,6 +6,8 @@ from svg.path import parse_path
 from xml.dom.minidom import Document, parse, parseString
 from utils.fio import get_absolute_path, get_config
 from utils.transcription import WordCoord
+import pathlib
+
 
 class HTMLVisualization:
     def __init__(self, word):
@@ -36,7 +38,7 @@ class HTMLVisualization:
         div = self._document.createElement('div')
         if img_id:
             div.setAttribute('id', img_id)
-        div.setAttribute('style', 'background-image: url("' + img_src + '");')
+        div.setAttribute('style', 'background-image: url("' + pathlib.Path(img_src).as_uri() + '");')
         div.setAttribute('class', 'svg');
         svg_doc = parse(svg_src)
         if words is not None:
