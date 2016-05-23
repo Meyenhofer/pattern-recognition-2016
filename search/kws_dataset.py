@@ -1,6 +1,7 @@
 from search.html import HTMLVisualization
 from utils.transcription import WordCoord
 
+
 def search_word(word, save=False, all_tooltips=True):
     """
     Finds all locations of a word. Optionally the locations can be saved in an
@@ -12,6 +13,7 @@ def search_word(word, save=False, all_tooltips=True):
         display_all_occurences(word, locations, output=word+'.html', all_tooltips=all_tooltips)
 
     return locations
+
 
 def display_all_occurences(word, locations, output='default.html', all_tooltips=True):
     """

@@ -35,7 +35,7 @@ def compute_central_heights():
 
 def compute_word_dimensions():
     knn = KNN()
-    knn.parse()
+    knn.load_train_and_valid()
 
     stats = dict()
     for word, img in zip(knn.train.Y, knn.train.imgs):

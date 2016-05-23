@@ -1,4 +1,5 @@
 import os
+import webbrowser
 
 from datetime import datetime
 import numpy as np
@@ -8,6 +9,8 @@ from fastdtw import fastdtw
 from scipy.spatial.distance import euclidean
 
 from dtwextension import dtwdistance
+
+from search.kws_dataset import display_all_occurences
 from utils.fio import get_absolute_path, parse_feature_map
 from utils.fio import get_config
 from utils.transcription import get_transcription, get_word, WordCoord
@@ -22,9 +25,14 @@ class KNN:
         self._d = None
         self.train = None
         self.valid = None
+        self.data = None
+        self.index = None
         self._log = None
 
     def fit(self, dataset):
+        """
+        Set the data used for knn classification
+        """
         if type(dataset) != DataSet:
             raise IOError("The input has to be a KNN.DataSet")
 
@@ -33,25 +41,22 @@ class KNN:
         if (self.train is None) or self.train.N <= 1:
             raise IOError("There is no data. Define dataset input or use KNN.parse().")
 
-    def parse(self, items=None, id_filter=None):
-        print('parse features')
-        config = get_config()
-        fmp = get_absolute_path(config.get('KWS.features', 'file'))
-        ids, imgs, mats = parse_feature_map(fmp, items=items, id_filter=id_filter)
+    def set_data(self, dataset):
+        """
+        Set the dataset for indexing and searching
+        """
+        if type(dataset) != DataSet:
+            raise IOError("The input has to be a KNN.DataSet")
 
-        print('parse transcription')
-        trans = get_transcription()
-        words = []
-        coords = []
-        for coord in ids:
-            word = get_word(coord, data=trans)
-            words.append(str(word))
-            coords.append(WordCoord(coord))
+        self.data = dataset
 
-        self.train = DataSet(np.array(words), imgs, mats, np.array(coords))
-
-    def parse_all(self):
-        self.parse()
+    def load_train_and_valid(self):
+        """
+        Convenience method to load the training and validation data accoring
+        to the specifications in the config.ini
+        """
+        dataset = DataSet.parse()
+        # self.parse()
 
         # get the training subset
         config = get_config()
@@ -63,18 +68,18 @@ class KNN:
                 dids.append(did)
 
         # create the index for the features
-        index = np.array([dids.count(x.doc_id) == 1 for x in self.train.coords], dtype=bool)
+        index = np.array([dids.count(x.doc_id) == 1 for x in dataset.coords], dtype=bool)
 
         # Put the data in memory
-        self.valid = DataSet(self.train.Y[index],
-                             self.train.imgs[index],
-                             self.train.X[index],
-                             self.train.coords[index])
+        self.valid = DataSet(dataset.Y[index],
+                             dataset.imgs[index],
+                             dataset.X[index],
+                             dataset.coords[index])
         index = ~index  # (tested if the valid doc ids are indeed the complement)
-        self.train = DataSet(self.train.Y[index],
-                             self.train.imgs[index],
-                             self.train.X[index],
-                             self.train.coords[index])
+        self.train = DataSet(dataset.Y[index],
+                             dataset.imgs[index],
+                             dataset.X[index],
+                             dataset.coords[index])
 
     def set_k(self, value):
         self._k = value
@@ -220,7 +225,10 @@ class KNN:
         f.write(msg)
         f.close()
 
-    def test(self, mats, lbls, coords, imgs=None, ):
+    def test(self, mats, lbls, coords, imgs=None):
+        """
+        Create a test log given some data
+        """
         self.create_log()
         self.log('# validation samples: %i\n' % len(mats))
 
@@ -273,6 +281,78 @@ class KNN:
         msg += ' ' * (8 - len(msg) + len(txt))
 
         return msg
+
+    def create_index(self, data=None):
+        """
+        create a word - document-coordinate index given some (new) data
+        """
+        t0 = time.time()
+
+        if data is not None:
+            self.data = data
+
+        print('indexing ', end='')
+
+        self.index = {}
+        img = None
+        for n, mat in enumerate(self.data.X):
+            if self.data.imgs is not None:
+                img = self.data.imgs[n]
+
+            coord = self.data.coords[n].id
+
+            if n % 10 == 0:
+                print('.', end='', flush=True)
+
+            lbl, nc, md, cnt, t = self.classify(mat, coord, img=img)
+            if lbl in self.index:
+                self.index[lbl].append(coord)
+            else:
+                self.index[lbl] = [coord]
+
+        print('')
+        twc = 0
+        for key in self.index:
+            wc = len(self.index[key])
+            lc = len(str(wc))
+            lw = len(key)
+            msg = '\t' + key + ' ' * (25 - lc - lw) + str(wc) + '-times'
+            print(msg)
+            twc += wc
+
+        print('indexed %i words in %.2f sec' % (twc, time.time() - t0))
+
+    def search_word(self, word):
+        """
+        Search for a word and display the results as html in default webbrowser
+        """
+        if self.index is None:
+            self.create_index()
+
+        if word not in self.index:
+            print('%s is not found' % word)
+            return
+
+        d = get_absolute_path('search/vis/')
+        if not os.path.exists(d):
+            os.mkdir(d)
+
+        outputfile = os.path.join(d, word + '.html')
+        display_all_occurences(word, self.index[word], output=outputfile)
+
+        print('searched "%s", found %i occurrences' % (word, len(self.index[word])))
+        webbrowser.open('file://' + outputfile)
+
+    def search_pos(self, coord):
+        if [str, np.str, np.str_].count(type(coord)) > 0:
+            coord = WordCoord(coord)
+
+        for key in self.index:
+            if self.index[key].count(coord) > 0:
+                self.search_word(key)
+                return
+
+            print('word coordinate %s is not indexed' % coord)
 
 
 class PairWiseDist:
@@ -340,3 +420,29 @@ class DataSet:
         self.X = mats
         self.coords = coords
         self.N = len(words)
+
+    def subset(self, index):
+        return DataSet(self.X[index], self.imgs[index], self.X[index], self.coords[index])
+
+    @staticmethod
+    def parse(filename=None, items=None, id_filter=None):
+        print('parse features')
+        config = get_config()
+
+        if filename is None:
+            fmp = get_absolute_path(config.get('KWS.features', 'file'))
+        else:
+            fmp = get_absolute_path(filename)
+
+        ids, imgs, mats = parse_feature_map(fmp, items=items, id_filter=id_filter)
+
+        print('parse transcription')
+        trans = get_transcription()
+        words = []
+        coords = []
+        for coord in ids:
+            word = get_word(coord, data=trans)
+            words.append(str(word))
+            coords.append(WordCoord(coord))
+
+        return DataSet(np.array(words), imgs, mats, np.array(coords))
