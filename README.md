@@ -15,8 +15,7 @@
 - [sklearn.neural_network.multilayer_perceptron]: Generic multi layer perceptron (Github pull request recently merged), see also [here](https://github.com/scikit-learn/scikit-learn/tree/master/sklearn/neural_network)
 - [svg.path]: SVG path objects and parser
 - [bob.learn.mlp]: Bob's Multi-layer Perceptron (MLP).
-- [editdistance]: Fast implementation of the edit distance(Levenshtein distance).
-- [cdtw]: dynamic time wrapping
+- [cdtw]: dynamic time wrapping (replaced by our own c-implementation)
 
 See [here](http://www.lfd.uci.edu/~gohlke/pythonlibs/) for Windows binaries.
 
@@ -41,7 +40,9 @@ poly4  | 1              | 0.955                     | 0.966      |0.946
 
 
 ## Key Word Search
-The main project of the course is about implementing a solution for key word search in historical documents. 
+The main project of the course is about implementing a solution for key word search in historical documents.
+Most of the methology is inspired by the work of Rath et al. [^fn1]
+
 ### Pre-processing
 Before extracting features, each word is pre-processed:
 - remove clutter (small objects)
@@ -59,13 +60,20 @@ Sliding window approach. Local descriptor includes:
 - relative positions (top, bottom, centroid, center of mass)
 - gray-scale moments
 
+### Distance computation
+Once the features are computed for each word, dynamic time warping (DTW) is used to compute the string edit distance 
+between a given pair of words.
+
+### Word classification
+For word classification a KNN algorithm is used. 
+
 ### Performance
 
 dataset     | overall accuracy | accuracy with training samples | cpu time 
 :---------: | :--------------: | :----------------------------: | :-------: 
-training    | 0.47             | 0.47                           | 10h 30min      
-validation  | 0.32             | 0.51                           | 8h 50min      
-everything  | 0.42             | 0.48                           | 19h 20 min      
+training    | 0.48             | 0.48                           | 7.25 min      
+validation  | 0.36             | 0.57                           | 4.15 min      
+everything  | 0.44             | 0.50                           | 11.40 min      
 
 ![accuracy vs. training samples][fig3.1]
 
@@ -92,4 +100,6 @@ everything  | 0.42             | 0.48                           | 19h 20 min
 [fig2.2]: https://raw.githubusercontent.com/dwettstein/pattern-recognition-2016/master/figs/SVM_confusion-matrix_poly_3.png
 [fig2.3]: https://raw.githubusercontent.com/dwettstein/pattern-recognition-2016/master/figs/SVM_confusion-matrix_poly_4.png
 
-[fig3.1]: https://raw.githubusercontent.com/dwettstein/pattern-recognition-2016/master/figs/kws_samples-vs-accuracy.png
+[fig3.1]: https://raw.githubusercontent.com/dwettstein/pattern-recognition-2016/master/figs/kws_overall-accuracy.png
+
+[^fn1]:Tony M. Rath and R. Manmatha. 2006. Word spotting for historical documents. IJDAR 9, 2–4 (August 2006), 139–152. DOI:http://dx.doi.org/10.1007/s10032-006-0027-8
