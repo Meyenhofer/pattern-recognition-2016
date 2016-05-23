@@ -1,6 +1,15 @@
 import numpy as np
+
+from ip import doc_processor
+from search import plot_accuracy
 from search.KNN import KNN
 
+
+# Process the images and generate a feature map
+doc_processor.main()
+
+# process the logs, do some plots and stdout
+plot_accuracy.main()
 
 # Load training and validation data
 knn = KNN()

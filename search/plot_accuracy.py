@@ -126,17 +126,22 @@ def filter_results(lbls, cnts, ntrs, wids, a_filt, n_filt):
     return None, None
 
 
-if __name__ == '__main__':
-    # testing log
-    p = get_absolute_path('search/16-05-22_14-53_classification.log')
+def main():
+    # validation log
+    p = get_absolute_path('search/log/16-05-23_23-46_classification.log')
     co1, y_in1, y_out1, nt1, nc1, md1, v1, cpu1, ids1 = parse_log(p)
-
     plot_accuracy(co1, y_in1, nt1, cpu1)
+
+    # example of how to filter for a specific point in the graph
     label, wid = filter_results(y_in1, co1, nt1, ids1, '<0.1', '>40')
 
     # training log
-    p = get_absolute_path('search/16-05-22_14-45_classification.log')
+    p = get_absolute_path('search/log/16-05-23_23-38_classification.log')
     co2, y_in2, y_out2, nt2, nc2, md2, v2, cpu2, ids2 = parse_log(p)
     plot_accuracy(co2, y_in2, nt2, cpu2)
 
     plot_accuracy(np.append(co1, co2), np.append(y_in1, y_in2), np.append(nt1, nt2), np.append(cpu1, cpu2))
+
+
+if __name__ == '__main__':
+    main()

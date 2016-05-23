@@ -72,6 +72,6 @@ def validation_test():
 if __name__ == '__main__':
     # subset_test()
 
-    # training_test()
+    training_test()
 
     validation_test()
