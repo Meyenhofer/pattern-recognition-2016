@@ -212,7 +212,11 @@ class KNN:
     def create_log(self):
         config = get_config()
         cp = get_absolute_path(config.get('KWS.classifier', 'file'))
-        self._log = os.path.join(os.path.dirname(cp), datetime.now().strftime('%y-%m-%d_%H-%M_') + os.path.basename(cp))
+        cd = os.path.dirname(cp)
+        if not os.path.exists(cd):
+            os.mkdir(cd)
+
+        self._log = os.path.join(cd, datetime.now().strftime('%y-%m-%d_%H-%M_') + os.path.basename(cp))
         msg = 'Testing\nk=%i\nvertical tolerance=%i\nhorizontal tolerance=%i\n# training samples: %i\n' % \
               (self._k, self._tol_v, self._tol_h, self.train.N)
         print(msg, end='')
