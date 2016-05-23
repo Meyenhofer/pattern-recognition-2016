@@ -35,7 +35,7 @@ def main(outputfile=None, retake=True):
     if outputfile is None:
         txtp = get_absolute_path(config.get('KWS.features', 'file'))
     else:
-        txtp = get_absolute_path(os.path.join('ip', outputfile))
+        txtp = get_absolute_path(os.path.join('ip/map', outputfile))
 
     processed = []
     if retake and os.path.exists(txtp):
