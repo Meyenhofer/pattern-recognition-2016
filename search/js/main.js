@@ -147,7 +147,7 @@ function hideElement(elem) {
 
 function visibleIcon() {
   let image = document.createElement('img');
-  image.setAttribute('src', 'search/assets/visibility.png');
+  image.setAttribute('src', 'assets/visibility.png');
   image.setAttribute('class', 'checkicon');
 
   return image;
@@ -155,7 +155,7 @@ function visibleIcon() {
 
 function invisibleIcon() {
   let image = document.createElement('img');
-  image.setAttribute('src', 'search/assets/visibility_off.png');
+  image.setAttribute('src', 'assets/visibility_off.png');
   image.setAttribute('class', 'checkicon invisible');
 
   return image;
