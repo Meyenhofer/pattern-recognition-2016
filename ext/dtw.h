@@ -21,5 +21,5 @@ void free_2darr(double **arr, int rows);
 matrix_t *dtw(matrix_t *x, matrix_t *y);
 double dtw_distance(matrix_t *x, matrix_t *y);
 double euclidean_distance(double x[], double y[], int length);
-double min(double a, double b, double c);
+double min_triple(double a, double b, double c);
 #endif

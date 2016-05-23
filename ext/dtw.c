@@ -21,7 +21,7 @@ matrix_t *dtw(matrix_t *x, matrix_t *y) {
   for (int i = 1; i < x->rows; i++) {
     for (int j = 1; j < y->rows; j++) {
       cost = euclidean_distance(x_arr[i], y_arr[j], x->cols);
-      double min_dist = min(distances[i-1][j], distances[i][j-1],
+      double min_dist = min_triple(distances[i-1][j], distances[i][j-1],
                             distances[i-1][j-1]);
       distances[i][j] = cost + min_dist;
     }
@@ -95,7 +95,7 @@ void free_2darr(double **arr, int rows) {
   free(arr);
 }
 
-double min(double a, double b, double c) {
+double min_triple(double a, double b, double c) {
   double min_ab = (a < b) ? a : b;
   return (min_ab < c) ? min_ab : c;
 }
