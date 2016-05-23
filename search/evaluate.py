@@ -52,11 +52,11 @@ def plot_accuracy(counts, labels, ntrain, cpu):
     oaa = sum(counts) / len(counts)
     cotr = counts[ntrain > 0]
     acc = sum(cotr) / len(cotr)
-    cput = sum(cpu) / 3600
+    cput = sum(cpu) / 60
 
     print('\nOverall accuracy: %.2f' % oaa)
     print('Accuracy given at least 1 training sample: %.2f' % acc)
-    print('CPU time: %0.2fh' % cput)
+    print('CPU time: %0.2f min' % cput)
 
     d = {}
     for lbl, cor, ntr, in zip(labels, counts, ntrain):
@@ -72,13 +72,13 @@ def plot_accuracy(counts, labels, ntrain, cpu):
     num = np.array([len(x[0]) for x in d.values()])
     y = cte / num
     x = np.array([x[1][0] for x in d.values()])
-
-    xy = np.vstack([x, y])
-    z = gaussian_kde(xy)(xy)
+    x2 = np.array([len(x) for x in d])
 
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(121)
     # ax.plot(x, y, '.')
+    xy = np.vstack([x, y])
+    z = gaussian_kde(xy)(xy)
     sc = ax.scatter(x, y, c=z, s=100, edgecolor='')
     ax.set_ylim([-0.05, 1.05])
     ax.set_xlim([-5, max(x) + 5])
@@ -89,6 +89,19 @@ def plot_accuracy(counts, labels, ntrain, cpu):
     cbar.ax.set_ylabel('label density')
     # cbar.set_ticks([0, 0.25, 0.5, 0.75, 1])
     # cbar.set_ticklabels(['0', '0.25', '0.5', '0.75', '1'], update_ticks=True)
+
+    ax2 = fig.add_subplot(122)
+    xy2 = np.vstack([x2, y])
+    z2 = gaussian_kde(xy2)(xy2)
+    sc2 = ax2.scatter(x2, y, c=z2, s=100, edgecolor='')
+    ax2.set_ylim([-0.05, 1.05])
+    ax2.set_xlim([-5, max(x2) + 5])
+    plt.grid()
+    plt.xlabel('word length')
+    plt.ylabel('accuracy')
+    cbar = plt.colorbar(sc2)
+    cbar.ax.set_ylabel('label density')
+
     plt.show()
 
 
@@ -114,14 +127,15 @@ def filter_results(lbls, cnts, ntrs, wids, a_filt, n_filt):
 
 
 if __name__ == '__main__':
-    # p = '/Users/turf/Desktop/16-05-15_02-22_classification.log'
-    p = get_absolute_path('search/160515_validation-set_classification.log')
+    # testing log
+    p = get_absolute_path('search/16-05-22_14-53_classification.log')
     co1, y_in1, y_out1, nt1, nc1, md1, v1, cpu1, ids1 = parse_log(p)
 
     plot_accuracy(co1, y_in1, nt1, cpu1)
     label, wid = filter_results(y_in1, co1, nt1, ids1, '<0.1', '>40')
 
-    p = get_absolute_path('search/160514_training-set_classification.log')
+    # training log
+    p = get_absolute_path('search/16-05-22_14-45_classification.log')
     co2, y_in2, y_out2, nt2, nc2, md2, v2, cpu2, ids2 = parse_log(p)
     plot_accuracy(co2, y_in2, nt2, cpu2)
 
