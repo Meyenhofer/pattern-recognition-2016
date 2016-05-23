@@ -17,6 +17,7 @@ if __name__ == '__main__':
     secondary_peak_height = float(config.get('KWS.prepro', 'secondary_peak_height'))
     window_width = int(config.get('KWS.features', 'window_width'))
     step_size = int(config.get('KWS.features', 'step_size'))
+    blocks = int(config.get('KWS.features', 'number_of_blocks'))
 
     # some sample images
     l = ['304-13-03',
@@ -26,7 +27,8 @@ if __name__ == '__main__':
          '303-29-02',
          '304-05-08']
 
-    l2 = ['270-16-01',
+    l2 = ['300-02-05',
+          '270-16-01',
           '277-05-03',
           '271-04-02',
           '270-04-05',
@@ -63,7 +65,8 @@ if __name__ == '__main__':
 
         fea = compute_features(pre,
                                window_width=window_width,
-                               step_size=step_size)
+                               step_size=step_size,
+                               blocks=blocks)
 
     # Read the feature map
     fpath = get_absolute_path('ip/feature-map.txt')

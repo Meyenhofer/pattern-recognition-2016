@@ -2,11 +2,14 @@ import numpy as np
 from scipy.signal import argrelextrema
 from scipy.stats import moment
 import matplotlib.pyplot as plt
+from skimage.morphology import skeletonize
 
 
-def compute_features(roi, window_width=1, step_size=3):
+def compute_features(roi, window_width=1, step_size=3, blocks=3):
     w = roi.shape[1]
     msk = roi > 0
+    # ske = skeletonize(np.array(msk, dtype=bool))
+
     f = []
 
     x1 = 0
@@ -21,41 +24,21 @@ def compute_features(roi, window_width=1, step_size=3):
 
         h = len(bw)
 
-        # gradient
-        gra = bw[0:-1] - bw[1:]
-        # number of black-white and white-black transitions
-        bwt, wbt = transitions(gra)
-        # pixels not on the contour
-        dk = gra == 0
-        dk = dk.sum() / h
-        # foreground fraction
-        fgf = bw.sum() / h
-
-        mi = np.where(bw)[0]
-        if len(mi) == 0:
-            top = bot = centroid = gravity = 0
-        else:
-            # top
-            top = np.min(mi) / h
-            # bottom
-            bot = np.max(mi) / h
-            # average mask positions (relative to height)
-            centroid = np.median(mi) / h
-            # center of gravity relative to height
-            gravity = np.mean(mi * gs) / h
-
-        fv = [fgf,
-              bwt,
-              wbt,
-              dk,
-              top,
-              bot,
-              centroid,
-              gravity,
-              np.mean(gsm),
+        # gray-scale features
+        fv = [np.mean(gsm),
               moment(gsm, moment=2),
               moment(gsm, moment=3),
               moment(gsm, moment=4)]
+
+        # binary features over the entire window
+        fv.extend(binary_features(bw))
+        # fv.extend(binary_features(ske))
+
+        # binary features over blocks of the window
+        if blocks > 1:
+            bh = int(np.floor(h / blocks))
+            for a, b in zip(range(0, blocks * bh, bh), range(bh, h + 1, bh)):
+                fv.extend(bw[a:b])
 
         f.append(fv)
 
@@ -65,6 +48,34 @@ def compute_features(roi, window_width=1, step_size=3):
             break
 
     return f
+
+
+def binary_features(bw):
+    h = bw.shape[0]
+    gra = bw[0:-1] - bw[1:]
+
+    # number of black-white and white-black transitions
+    bwt, wbt = transitions(gra)
+    # pixels not on the contour
+    dk = (gra == 0) & (bw[0:-1] > 0)
+    dk = dk.sum() / h
+    # foreground fraction
+    fgf = bw.sum() / h
+
+    mi = np.where(bw)[0]
+    if len(mi) == 0:
+        top = 0
+        bot = 0
+        cen = 0
+    else:
+        # top
+        top = np.min(mi) / h
+        # bottom
+        bot = np.max(mi) / h
+        # average mask positions (relative to height)
+        cen = np.median(mi) / h
+
+    return [bwt, wbt, dk, fgf, top, bot, cen]
 
 
 def transitions(bin_img):

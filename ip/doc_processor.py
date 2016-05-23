@@ -69,6 +69,7 @@ def main(retake=True):
     secondary_peak_height = float(config.get('KWS.prepro', 'secondary_peak_height'))
     window_width = int(config.get('KWS.features', 'window_width'))
     step_size = int(config.get('KWS.features', 'step_size'))
+    blocks = int(config.get('KWS.features', 'number_of_blocks'))
 
     for svgp, imgp in zip(svgs, imgs):
         svgid = os.path.basename(svgp).replace('.svg', '')
@@ -111,7 +112,8 @@ def main(retake=True):
 
             fea = compute_features(pre,
                                    window_width=window_width,
-                                   step_size=step_size)
+                                   step_size=step_size,
+                                   blocks=blocks)
 
             write_word_features(txtp, wid, fea, [pre.shape[0], pre.shape[1], sym])
             print('...')
