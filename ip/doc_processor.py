@@ -27,14 +27,15 @@ def write_word_features(output_file, word_id, mat, fea):
     handle.close()
 
 
-def main(retake=True):
+def main(outputfile=None, retake=True):
     print('Word pre-processing')
     config = get_config()
 
     # create an output file
-    txtp = get_absolute_path(config.get('KWS.features', 'file'))
-    # fp = os.path.join(os.path.dirname(txtp),
-    #                   datetime.now().strftime('%y-%m-%d_%H-%M_') + os.path.basename(txtp))
+    if outputfile is None:
+        txtp = get_absolute_path(config.get('KWS.features', 'file'))
+    else:
+        txtp = get_absolute_path(os.path.join('ip', outputfile))
 
     processed = []
     if retake and os.path.exists(txtp):
