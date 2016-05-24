@@ -14,12 +14,12 @@ def load_data(data_path):
             molecule_element = molecule.Molecule(line_parts[0], line_parts[1])
             molecules.append(molecule_element)
             target_values.append(line_parts[1])
-    print("Found %d molecules in train set '%s'." % (len(molecules), data_path))
+    print("Found %d molecules in '%s'." % (len(molecules), data_path))
     return molecules, target_values
     
     
 def run_evaluation(test_set, train_set, k):
-    print("Starting evaluating test set (length=%d) with k=%d." % (len(test_set), k))
+    print("Starting evaluation of test set (length=%d) with k=%d." % (len(test_set), k))
     start = timer()
     predictions = bipartite_graph.evaluate_test_set(test_set, train_set, k)
     accuracy = bipartite_graph.get_accuracy(predictions, test_set)
