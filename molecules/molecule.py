@@ -102,6 +102,9 @@ class Node:
     def get_indegree(self):
         return len(self.in_edges)
     
+    def total_edges(self):
+        return self.get_outdegree() + self.get_indegree()
+    
     def get_id(self):
         return self.id
     
@@ -117,3 +120,4 @@ class Edge:
         self.from_node = from_node
         self.to_node = to_node
         self.valence = valence
+        

@@ -1,6 +1,6 @@
 from time import asctime
 from timeit import default_timer as Timer
-from molecules import molecule
+from molecules import molecule,bipartite_graph
 
 
 def main():
@@ -16,6 +16,18 @@ def main():
     node1 = mol16.get_nodes()[0]
     print("Node '%s' outdegree: %d" % (node1, node1.get_outdegree()))
     print("Node '%s' indegree: %d" % (node1, node1.get_indegree()))
+    
+    mol40 = molecule.Molecule("40")
+    print(mol40.get_id())
+    
+    cost_matrix = bipartite_graph.build_cost_matrix(mol16, mol40)
+    print(cost_matrix)
+    
+    row_ind, col_ind = bipartite_graph.get_optimal_assignment(cost_matrix)
+    print("%s; %s" % (row_ind, col_ind))
+    
+    lsa_cost = bipartite_graph.get_assignment_cost(cost_matrix, row_ind, col_ind)
+    print(lsa_cost)
     
     end = Timer()
     print("================================================================================")
