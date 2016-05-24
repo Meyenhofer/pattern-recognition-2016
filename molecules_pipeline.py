@@ -1,6 +1,6 @@
 from time import asctime
 from timeit import default_timer as Timer
-from molecules import molecule,bipartite_graph
+from molecules import molecule,bipartite_graph,node,edge
 
 
 def main():

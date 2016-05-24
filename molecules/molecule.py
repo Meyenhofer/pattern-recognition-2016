@@ -1,6 +1,8 @@
 from utils import fio
 from pathlib import Path
 import xml.etree.ElementTree as ET
+from . import node as Node
+from . import edge as Edge
 
 
 class Molecule:
@@ -51,7 +53,7 @@ class Molecule:
             charge_element = node.findall("*[@name='charge']")[0]
             x_element = node.findall("*[@name='x']")[0]
             y_element = node.findall("*[@name='y']")[0]
-            node_obj = Node(node.get('id'), symbol_element[0].text, int(chem_element[0].text), int(charge_element[0].text), float(x_element[0].text), float(y_element[0].text))
+            node_obj = Node.Node(node.get('id'), symbol_element[0].text, int(chem_element[0].text), int(charge_element[0].text), float(x_element[0].text), float(y_element[0].text))
             self.nodes.append(node_obj)
         """
         <edge from="_1" to="_2">
@@ -64,11 +66,10 @@ class Molecule:
             valence_element = edge.findall("*[@name='valence']")[0]
             from_node = [n for n in self.nodes if n.id == edge.get('from')][0]
             to_node = [n for n in self.nodes if n.id == edge.get('to')][0]
-            edge_obj = Edge(from_node, to_node, int(valence_element[0].text))
+            edge_obj = Edge.Edge(from_node, to_node, int(valence_element[0].text))
             from_node.add_out_edge(edge_obj)
             to_node.add_in_edge(edge_obj)
             self.edges.append(edge_obj)
-            
         
     def get_id(self):
         return self.id
@@ -78,46 +79,3 @@ class Molecule:
         
     def get_edges(self):
         return self.edges
-        
-class Node:
-    def __init__(self, id, symbol, chem, charge, x, y):
-        self.id = id
-        self.symbol = symbol
-        self.chem = chem
-        self.charge = charge
-        self.x = x
-        self.y = y
-        self.out_edges = []
-        self.in_edges = []
-        
-    def add_out_edge(self, out_edge):
-        self.out_edges.append(out_edge)
-    
-    def add_in_edge(self, in_edge):
-        self.in_edges.append(in_edge)
-    
-    def get_outdegree(self):
-        return len(self.out_edges)
-        
-    def get_indegree(self):
-        return len(self.in_edges)
-    
-    def total_edges(self):
-        return self.get_outdegree() + self.get_indegree()
-    
-    def get_id(self):
-        return self.id
-    
-    def get_symbol(self):
-        return self.symbol
-    
-    def __str__(self):
-        return self.id.__str__()
-        
-
-class Edge:
-    def __init__(self, from_node, to_node, valence):
-        self.from_node = from_node
-        self.to_node = to_node
-        self.valence = valence
-        
