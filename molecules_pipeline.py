@@ -8,11 +8,14 @@ def main():
     print("================================================================================")
     start = Timer()
     
-    test = molecule.Molecule("16")
-    print(test.get_id())
-    print("Nodes:")
-    for node in test.get_nodes():
-        print(node)
+    mol16 = molecule.Molecule("16")
+    print(mol16.get_id())
+    print("# nodes: %d" % (len(mol16.get_nodes())))
+    print("# edges: %d" % (len(mol16.get_edges())))
+    
+    node1 = mol16.get_nodes()[0]
+    print("Node '%s' outdegree: %d" % (node1, node1.get_outdegree()))
+    print("Node '%s' indegree: %d" % (node1, node1.get_indegree()))
     
     end = Timer()
     print("================================================================================")
