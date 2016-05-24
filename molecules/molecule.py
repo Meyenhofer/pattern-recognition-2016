@@ -6,8 +6,9 @@ from . import edge as Edge
 
 
 class Molecule:
-    def __init__(self, file_number):
+    def __init__(self, file_number, label=None):
         self.file_number = file_number
+        self.label = label
         self.nodes = []
         self.edges = []
         self.load_input_file()
@@ -23,7 +24,7 @@ class Molecule:
         """
         See also here: http://stackoverflow.com/questions/34954608/parsing-gxl-in-python/34960625
         """
-        print("Parsing file: %s" % (self.file_path))
+        #print("Parsing file: %s" % (self.file_path))
         gxlTree = ET.parse(self.file_path)
         graph = gxlTree.find('graph')
         self.id = graph.get('id')
@@ -79,3 +80,6 @@ class Molecule:
         
     def get_edges(self):
         return self.edges
+        
+    def get_label(self):
+        return self.label
