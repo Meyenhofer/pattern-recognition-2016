@@ -2,7 +2,7 @@ import numpy as np
 
 from ip import doc_processor
 from search import plot_accuracy
-from search.KNN import KNN
+from search.kws import KWS
 
 
 # Process the images and generate a feature map
@@ -12,7 +12,7 @@ doc_processor.main()
 plot_accuracy.main()
 
 # Load training and validation data
-knn = KNN()
+knn = KWS()
 knn.load_train_and_valid()
 
 # Get one single page from the validation data

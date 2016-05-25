@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from ip.preprocess import create_word_mask
-from search.KNN import KNN
+from search.kws import KWS
 from utils.fio import get_image_roi, get_config
 from utils.transcription import get_transcription
 
@@ -34,7 +34,7 @@ def compute_central_heights():
 
 
 def compute_word_dimensions():
-    knn = KNN()
+    knn = KWS()
     knn.load_train_and_valid()
 
     stats = dict()

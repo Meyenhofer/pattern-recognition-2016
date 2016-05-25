@@ -2,7 +2,7 @@ import os
 import numpy as np
 
 from ip import doc_processor
-from search.KNN import DataSet
+from search.kws import DataSet
 from utils.fio import get_config, get_absolute_path
 from utils.transcription import Word, WordCoord
 from dtwextension import dtwdistance
