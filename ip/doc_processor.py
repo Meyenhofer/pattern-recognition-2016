@@ -27,7 +27,7 @@ def write_word_features(output_file, word_id, mat, fea):
     handle.close()
 
 
-def main(outputfile=None, retake=True):
+def main(imgpath=None, svgpath=None, outputfile=None, retake=True, saveimgs=True):
     print('Word pre-processing')
     config = get_config()
 
@@ -35,7 +35,7 @@ def main(outputfile=None, retake=True):
     if outputfile is None:
         txtp = get_absolute_path(config.get('KWS.features', 'file'))
     else:
-        txtp = get_absolute_path(os.path.join('ip/map', outputfile))
+        txtp = get_absolute_path(os.path.join(outputfile))
 
     processed = []
     if retake and os.path.exists(txtp):
@@ -57,9 +57,16 @@ def main(outputfile=None, retake=True):
         handle.close()
 
     # get the data
-    svgd = get_absolute_path(config.get('KWS', 'locations'))
+    if svgpath is None:
+        svgd = get_absolute_path(config.get('KWS', 'locations'))
+    else:
+        svgd = get_absolute_path(svgpath)
     svgs = glob(os.path.join(svgd, '*.svg'))
-    imgd = get_absolute_path(config.get('KWS', 'images'))
+
+    if imgpath is None:
+        imgd = get_absolute_path(config.get('KWS', 'images'))
+    else:
+        imgd = get_absolute_path(imgpath)
     imgs = glob(os.path.join(imgd, '*.jpg'))
 
     # parse some parameter
@@ -93,7 +100,13 @@ def main(outputfile=None, retake=True):
                 continue
 
             # look up the corresponding word
-            word = get_word(wid, data=trans)
+            if saveimgs:
+                imgfile = wid
+                word = get_word(wid, data=trans)
+                if word is not None:
+                    imgfile = word.code2string() + '_' + imgfile
+            else:
+                imgfile = None
 
             # get the word image
             poly = path2polygon(path)
@@ -105,7 +118,7 @@ def main(outputfile=None, retake=True):
                                          skew_res=skew_resolution,
                                          ppw=primary_peak_height,
                                          spw=secondary_peak_height,
-                                         save=word.code2string() + '_' + wid)
+                                         save=imgfile)
 
             if type(pre) is str:
                 print('\tpre-processing failed\n\t\t%s' % pre)

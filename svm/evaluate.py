@@ -44,12 +44,6 @@ def main():
     dat = parse()
 
     for param in kernels:
-        if param.find('poly') > -1:
-            parts = param.split(' ')
-            kernel = parts[0].strip()
-        else:
-            kernel = param.strip()
-
         name = 'svn_' + param + '_ts-26999'
         path = get_classifier_file(name)
         print('loading classifier %s' % name)
