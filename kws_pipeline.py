@@ -16,7 +16,7 @@ knn = KWS()
 knn.load_train_and_valid()
 
 # Get one single page from the validation data
-index = np.array([x.doc_id == '300' for x in knn.valid.coords], dtype=bool)
+index = np.array([['300', '301'].count(x.doc_id) > 0 for x in knn.valid.coords], dtype=bool)
 dataset = knn.valid.subset(index)
 
 # Search
