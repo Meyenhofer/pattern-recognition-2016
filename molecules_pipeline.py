@@ -42,7 +42,6 @@ def export_predictions(predictions):
         data.append(data_element)
     data.sort(key=operator.itemgetter(0))
     fio.export_csv_data(file_path, data)
-    pass
         
 
 def main():
