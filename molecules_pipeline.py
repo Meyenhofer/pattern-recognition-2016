@@ -2,6 +2,7 @@ from time import asctime
 from timeit import default_timer as timer
 from molecules import molecule,bipartite_graph,node,edge
 from utils import fio
+import operator
 
 
 def load_data(data_path):
@@ -26,7 +27,23 @@ def run_evaluation(test_set, train_set, k):
     end = timer()
     print("Duration of evaluating test set: %f" % (end - start))
     print("The accuracy for k=%d is: %f" % (k, accuracy))
-    
+    export_predictions(predictions)
+
+
+def export_predictions(predictions):
+    config = fio.get_config()
+    file_path = config.get('molecules', 'root')
+    file_path += "/molecules_result.csv"
+    data = []
+    for element in predictions:
+        molecule = element[0]
+        label = element[1]
+        data_element = [molecule.get_file_number(), label]
+        data.append(data_element)
+    data.sort(key=operator.itemgetter(0))
+    fio.export_csv_data(file_path, data)
+    pass
+        
 
 def main():
     print("%s | Start running molecules_pipeline." % asctime())

@@ -83,3 +83,6 @@ class Molecule:
         
     def get_label(self):
         return self.label
+        
+    def get_file_number(self):
+        return self.file_number
