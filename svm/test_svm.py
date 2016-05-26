@@ -5,10 +5,10 @@ from sklearn.metrics import confusion_matrix
 from sklearn.externals import joblib
 from pandas import DataFrame
 import numpy as np
+
+from utils.fio import get_absolute_path
+
 import matplotlib
-
-from utils.fio import get_project_root_directory, get_absolute_path
-
 matplotlib.use('Agg')   # Avoid gui.
 import matplotlib.pyplot as plt
 

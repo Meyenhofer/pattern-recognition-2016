@@ -1,4 +1,4 @@
-from search.KNN import KNN, DataSet
+from search.kws import KWS, DataSet
 from utils.transcription import get_coords, get_doc_coords
 
 
@@ -40,7 +40,7 @@ def subset_test():
     coords.extend(get_coords('Fort'))
 
     ds = DataSet.parse(id_filter=[x.id for x in coords])
-    val = KNN()
+    val = KWS()
     val.fit(ds)
     # val.set_tol(100, 500)
     # val.set_k(3)
@@ -48,7 +48,7 @@ def subset_test():
 
 
 def training_test():
-    knn = KNN()
+    knn = KWS()
     knn.load_train_and_valid()
 
     # knn.set_k(3)
@@ -59,7 +59,7 @@ def training_test():
 
 
 def validation_test():
-    knn = KNN()
+    knn = KWS()
     knn.load_train_and_valid()
 
     # knn.set_k(3)

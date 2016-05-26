@@ -10,13 +10,13 @@ from scipy.spatial.distance import euclidean
 
 from dtwextension import dtwdistance
 
-from search.kws_dataset import display_all_occurences
+from search.visualize import display_all_occurences
 from utils.fio import get_absolute_path, parse_feature_map
 from utils.fio import get_config
 from utils.transcription import get_transcription, get_word, WordCoord
 
 
-class KNN:
+class KWS:
     def __init__(self):
         config = get_config()
         self._k = int(config.get('KWS.classifier', 'k'))
