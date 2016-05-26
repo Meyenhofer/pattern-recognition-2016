@@ -1,0 +1,18 @@
+$ python .\molecules_pipeline.py
+Thu May 26 06:36:40 2016 | Start running molecules_pipeline.
+================================================================================
+Loading ../molecules/train.txt
+Found 250 molecules in '../molecules/train.txt'.
+Loading ../molecules/valid.txt
+Found 250 molecules in '../molecules/valid.txt'.
+Starting evaluation of test set (length=250) with k=3.
+Processing element 0 of 250.
+Processing element 50 of 250.
+Processing element 100 of 250.
+Processing element 150 of 250.
+Processing element 200 of 250.
+Duration of evaluating test set: 266.185142
+The accuracy for k=3 is: 99.600000
+================================================================================
+Duration: 268.681060
+Thu May 26 06:41:09 2016 | End of molecules_pipeline.
