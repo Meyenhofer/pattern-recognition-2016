@@ -5,7 +5,6 @@ from datetime import datetime
 import numpy as np
 import time
 
-from fastdtw import fastdtw
 from scipy.spatial.distance import euclidean
 
 from dtwextension import dtwdistance
