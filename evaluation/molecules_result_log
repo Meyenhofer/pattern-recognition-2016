@@ -1,4 +1,4 @@
-$ python .\molecules_pipeline.py
+$ python ./molecules_pipeline.py
 Thu May 26 06:36:40 2016 | Start running molecules_pipeline.
 ================================================================================
 Loading ../molecules/train.txt

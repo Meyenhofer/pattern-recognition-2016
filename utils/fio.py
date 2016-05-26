@@ -134,7 +134,7 @@ def export_csv_data(filepath, data, delimiter=','):
     with open(filepath, "w", newline="") as file_out:
         writer = csv.writer(file_out, delimiter=delimiter)
         if type(data) == np.ndarray:
-            writer.writerows(data.tolist())
+            writer.writerows([data.tolist()])
         else:
             writer.writerows(data)
     return
