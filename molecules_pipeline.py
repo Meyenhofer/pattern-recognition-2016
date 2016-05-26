@@ -19,6 +19,18 @@ def load_data(data_path):
     return molecules, target_values
     
     
+def load_evaluation_data(data_path):
+    print("Loading %s" % data_path)
+    molecules = []
+    with open(data_path, "r") as data_file:
+        for data in data_file:
+            line = data.splitlines()[0]
+            molecule_element = molecule.Molecule(line)
+            molecules.append(molecule_element)
+    print("Found %d molecules in '%s'." % (len(molecules), data_path))
+    return molecules
+    
+    
 def run_evaluation(test_set, train_set, k):
     print("Starting evaluation of test set (length=%d) with k=%d." % (len(test_set), k))
     start = timer()
@@ -75,8 +87,8 @@ def main():
     train_path = config.get('molecules', 'training')
     train_molecules, train_target_values = load_data(train_path)
     
-    test_path = config.get('molecules', 'testing')
-    test_molecules, test_target_values = load_data(test_path)
+    #test_path = config.get('molecules', 'testing')
+    #test_molecules, test_target_values = load_data(test_path)
     #test_element = test_molecules[0]
     
     #knn_classifier = bipartite_graph.get_knn_classifier(train_molecules, train_target_values)
@@ -87,8 +99,10 @@ def main():
     #print("Predicted label: %s" % label)
     
     
-    run_evaluation(test_molecules, train_molecules, 3)
+    evaluation_path = config.get('molecules', 'evaluation')
+    evaluation_molecules = load_evaluation_data(evaluation_path)
     
+    run_evaluation(evaluation_molecules, train_molecules, 3)
     
     end = timer()
     print("================================================================================")

@@ -103,7 +103,13 @@ def main():
     print("Training set loss: %f" % mlp.loss_)
     print("Test set score: %f" % mlp.score(test_set_data, test_set_lables))
     
-    predictions = mlp.predict(test_set_data)
+    # Load evaluation set.
+    evaluation_set_data = fio.import_csv_data(fio.get_absolute_path(config.get('Evaluation.SVM', 'mnist')))
+    print("Evaluation data length: %i" % len(evaluation_set_data))
+    # Rescale.
+    evaluation_set_data = evaluation_set_data / 255.
+    
+    predictions = mlp.predict(evaluation_set_data)
     export_predictions(predictions)
     
     #fig, axes = plt.subplots(3, 3)

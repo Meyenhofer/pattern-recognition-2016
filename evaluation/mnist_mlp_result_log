@@ -34,3 +34,4 @@ Training loss did not improve more than tol=0.000100 for two consecutive epochs.
 Training set score: 1.000000
 Training set loss: 0.002101
 Test set score: 0.977202
+Evaluation data length: 10000
