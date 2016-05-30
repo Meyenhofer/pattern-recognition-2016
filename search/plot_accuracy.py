@@ -105,7 +105,7 @@ def plot_accuracy(counts, labels, ntrain, cpu):
     plt.show()
 
 
-def filter_results(lbls, cnts, ntrs, wids, a_filt, n_filt):
+def filter_results(lbls, cnts, ntrs, wids, a_filt=None, n_filt=None, l_filt=None):
     d = {}
     for l, i, c, n in zip(lbls, wids, cnts, ntrs):
         if l in d:
@@ -115,11 +115,19 @@ def filter_results(lbls, cnts, ntrs, wids, a_filt, n_filt):
             d[l] = [[c], n, [i]]
 
     for l in d:
-        acc = sum(d[l][0]) / len(d[l][0])
-        c_estr = str(acc) + a_filt
-        n_estr = str(d[l][1]) + n_filt
+        flag = True
+        if a_filt is not None:
+            acc = sum(d[l][0]) / len(d[l][0])
+            c_estr = str(acc) + a_filt
+            flag = flag and eval(c_estr)
+        if n_filt is not None:
+            n_estr = str(d[l][1]) + n_filt
+            flag = flag and eval(n_estr)
+        if l_filt is not None:
+            l_estr = str(len(l)) + l_filt
+            flag = flag and (eval(l_estr))
 
-        if eval(c_estr) and eval(n_estr):
+        if flag:
             print('%s, %s' % (l, d[l][2]))
             return l, d[l][2]
 
@@ -133,12 +141,16 @@ def main():
     plot_accuracy(co1, y_in1, nt1, cpu1)
 
     # example of how to filter for a specific point in the graph
-    label, wid = filter_results(y_in1, co1, nt1, ids1, '<0.1', '>40')
+    label, wid = filter_results(y_in1, co1, nt1, ids1, a_filt='<0.1', n_filt='>10')
+
+
 
     # training log
     p = get_absolute_path('search/log/16-05-23_23-38_classification.log')
     co2, y_in2, y_out2, nt2, nc2, md2, v2, cpu2, ids2 = parse_log(p)
     plot_accuracy(co2, y_in2, nt2, cpu2)
+
+    label, wid = filter_results(y_in2, co2, nt2, ids2, a_filt='<0.01', l_filt='>14')
 
     plot_accuracy(np.append(co1, co2), np.append(y_in1, y_in2), np.append(nt1, nt2), np.append(cpu1, cpu2))
 

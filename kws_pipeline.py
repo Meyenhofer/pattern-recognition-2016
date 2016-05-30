@@ -12,14 +12,14 @@ doc_processor.main()
 plot_accuracy.main()
 
 # Load training and validation data
-knn = KWS()
-knn.load_train_and_valid()
+kws = KWS()
+kws.load_train_and_valid()
 
 # Get one single page from the validation data
-index = np.array([['300', '301'].count(x.doc_id) > 0 for x in knn.valid.coords], dtype=bool)
-dataset = knn.valid.subset(index)
+index = np.array([['300'].count(x.doc_id) > 0 for x in kws.valid.coords], dtype=bool)
+dataset = kws.valid.subset(index)
 
 # Search
-knn.set_data(dataset)
-knn.create_index()
-knn.search_word('the')
+kws.set_data(dataset)
+kws.create_index()
+kws.search_word('with')
