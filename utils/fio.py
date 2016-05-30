@@ -130,11 +130,11 @@ def split_labels_data(np_data, label_index):
     return np.array(labels), np.array(data)
 
 
-def export_csv_data(filepath, data):
+def export_csv_data(filepath, data, delimiter=','):
     with open(filepath, "w", newline="") as file_out:
-        writer = csv.writer(file_out, delimiter=',')
+        writer = csv.writer(file_out, delimiter=delimiter)
         if type(data) == np.ndarray:
-            writer.writerows(data.tolist())
+            writer.writerows([data.tolist()])
         else:
             writer.writerows(data)
     return

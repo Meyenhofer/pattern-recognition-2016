@@ -1,0 +1,37 @@
+$ python ./mlp_main.py
+Train data length: 26999
+Test data length: 15001
+Iteration 1, loss = 0.35827192
+Iteration 2, loss = 0.14456768
+Iteration 3, loss = 0.09532412
+Iteration 4, loss = 0.06828521
+Iteration 5, loss = 0.04926633
+Iteration 6, loss = 0.03714822
+Iteration 7, loss = 0.02782882
+Iteration 8, loss = 0.02115322
+Iteration 9, loss = 0.01684470
+Iteration 10, loss = 0.01290084
+Iteration 11, loss = 0.01012908
+Iteration 12, loss = 0.00838988
+Iteration 13, loss = 0.00727315
+Iteration 14, loss = 0.00603019
+Iteration 15, loss = 0.00543526
+Iteration 16, loss = 0.00477882
+Iteration 17, loss = 0.00433814
+Iteration 18, loss = 0.00394948
+Iteration 19, loss = 0.00362675
+Iteration 20, loss = 0.00338544
+Iteration 21, loss = 0.00313660
+Iteration 22, loss = 0.00294048
+Iteration 23, loss = 0.00279112
+Iteration 24, loss = 0.00262402
+Iteration 25, loss = 0.00250432
+Iteration 26, loss = 0.00238798
+Iteration 27, loss = 0.00229483
+Iteration 28, loss = 0.00219603
+Iteration 29, loss = 0.00210138
+Training loss did not improve more than tol=0.000100 for two consecutive epochs. Stopping.
+Training set score: 1.000000
+Training set loss: 0.002101
+Test set score: 0.977202
+Evaluation data length: 10000

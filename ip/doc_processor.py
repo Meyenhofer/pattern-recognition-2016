@@ -78,6 +78,8 @@ def main(imgpath=None, svgpath=None, outputfile=None, retake=True, saveimgs=True
     window_width = int(config.get('KWS.features', 'window_width'))
     step_size = int(config.get('KWS.features', 'step_size'))
     blocks = int(config.get('KWS.features', 'number_of_blocks'))
+    svgs.sort()
+    imgs.sort()
 
     for svgp, imgp in zip(svgs, imgs):
         svgid = os.path.basename(svgp).replace('.svg', '')
