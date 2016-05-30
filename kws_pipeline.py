@@ -1,8 +1,8 @@
 import numpy as np
 
+from search.kws import KWS
 from ip import doc_processor
 from search import plot_accuracy
-from search.kws import KWS
 
 
 # Process the images and generate a feature map

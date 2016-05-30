@@ -166,7 +166,10 @@ class KWS:
         """
         t0 = time.time()
 
-        if img is None:
+        config = get_config()
+        prune = config.get('KWS.classifier', 'prune') == 'True'
+
+        if img is None or not prune:
             x = self.train.X
             y = self.train.Y
             c = np.array([x.id for x in self.train.coords])
